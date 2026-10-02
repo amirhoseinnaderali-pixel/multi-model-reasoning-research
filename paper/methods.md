@@ -24,6 +24,6 @@ Every model call reserves worst-case output tokens, wall time, and cost before e
 
 ### Paper status
 
-**IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED.**
+**COMPLETED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED.**
 
-No accuracy, cost, significance, or overall strategy conclusion is reported before the full EXP-001 matrix is executed.
+The recorded accuracy, cost, significance, and strategy comparisons are reported in the study results.
