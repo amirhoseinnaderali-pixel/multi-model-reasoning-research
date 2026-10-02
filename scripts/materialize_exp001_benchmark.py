@@ -9,7 +9,7 @@ import json
 import re
 import urllib.request
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 EXPECTED_SOURCE_TASK_COUNT = 164
 REQUIRED_OUTPUT_FIELDS = {
@@ -21,6 +21,7 @@ REQUIRED_OUTPUT_FIELDS = {
     "visible_tests",
     "hidden_tests",
 }
+ACTIVE_ASSERTIONS_NAME = "_MMR_ACTIVE_ASSERT_IDS"
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -63,75 +64,86 @@ def strip_doctest_examples(prompt: str) -> str:
     return "\n".join(out).rstrip() + "\n"
 
 
-def _check_function(test_source: str) -> ast.FunctionDef:
-    tree = ast.parse(test_source)
+def _check_function(tree: ast.Module) -> ast.FunctionDef:
     for node in tree.body:
         if isinstance(node, ast.FunctionDef) and node.name == "check":
             return node
     raise ValueError("Test source does not define check(candidate)")
 
 
-def _top_level_asserts(test_source: str) -> list[ast.Assert]:
-    check = _check_function(test_source)
-    asserts: list[ast.Assert] = []
-    for node in check.body:
-        if isinstance(node, ast.Assert):
-            asserts.append(node)
-        elif (
-            isinstance(node, ast.Expr)
-            and isinstance(node.value, ast.Call)
-            and isinstance(node.value.func, ast.Name)
-            and node.value.func.id == "print"
-        ):
-            continue
-        elif (
-            isinstance(node, ast.Expr)
-            and isinstance(node.value, ast.Constant)
-            and isinstance(node.value.value, str)
-        ):
-            continue
-        elif isinstance(node, (ast.Pass, ast.Return)):
-            continue
-        else:
-            raise ValueError(
-                f"Unsupported executable setup inside check(candidate): {ast.unparse(node)}"
-            )
-    return asserts
+def _iter_asserts(node: ast.AST) -> Iterable[ast.Assert]:
+    for child in ast.iter_child_nodes(node):
+        if isinstance(child, ast.Assert):
+            yield child
+        yield from _iter_asserts(child)
 
 
-def split_assertions(test_source: str) -> tuple[list[str], list[str], int]:
-    asserts = _top_level_asserts(test_source)
-    if len(asserts) < 2:
-        raise ValueError("Every EXP-001 task must contain at least two top-level assertions")
-    cut = (len(asserts) + 1) // 2
-    visible = [ast.unparse(node) for node in asserts[:cut]]
-    hidden = [ast.unparse(node) for node in asserts[cut:]]
-    return visible, hidden, len(asserts)
+def _assert_nodes(test_source: str) -> list[ast.Assert]:
+    return list(_iter_asserts(_check_function(ast.parse(test_source))))
 
 
-def _module_setup(test_source: str) -> str:
-    tree = ast.parse(test_source)
-    kept = [
-        node
-        for node in tree.body
+class _AssertGateTransformer(ast.NodeTransformer):
+    def __init__(self) -> None:
+        self.next_id = 0
+
+    def visit_Assert(self, node: ast.Assert) -> ast.If:
+        node = self.generic_visit(node)
+        assert isinstance(node, ast.Assert)
+
+        assert_id = self.next_id
+        self.next_id += 1
+
+        gate = ast.If(
+            test=ast.Compare(
+                left=ast.Constant(value=assert_id),
+                ops=[ast.In()],
+                comparators=[ast.Name(id=ACTIVE_ASSERTIONS_NAME, ctx=ast.Load())],
+            ),
+            body=[node],
+            orelse=[],
+        )
+        return ast.copy_location(gate, node)
+
+
+def _module_setup(tree: ast.Module) -> str:
+    setup_nodes = [
+        node for node in tree.body
         if not (isinstance(node, ast.FunctionDef) and node.name == "check")
     ]
-    if not kept:
+    if not setup_nodes:
         return ""
-    return "\n\n".join(ast.unparse(node) for node in kept) + "\n"
+    return "\n\n".join(ast.unparse(node) for node in setup_nodes).rstrip()
 
 
 def _build_test_source(
     entry_point: str,
     test_source: str,
-    assertions: list[str],
+    active_assert_ids: list[int],
 ) -> str:
-    setup = _module_setup(test_source)
-    parts = []
-    if setup.strip():
-        parts.append(setup.rstrip())
+    tree = ast.parse(test_source)
+    check = _check_function(tree)
+    assert_count = len(list(_iter_asserts(check)))
+
+    if not active_assert_ids:
+        raise ValueError("An evaluation suite cannot contain zero active assertions")
+    if any(i < 0 or i >= assert_count for i in active_assert_ids):
+        raise ValueError("Active assertion ID is outside the source assertion range")
+
+    transformed = _AssertGateTransformer().visit(tree)
+    ast.fix_missing_locations(transformed)
+    setup = _module_setup(transformed)
+    check_fn = _check_function(transformed)
+
+    # Keep all original control flow and helper/setup statements intact. Only
+    # assertion execution is gated by the frozen visible/hidden assertion IDs.
+    parts: list[str] = [
+        f"{ACTIVE_ASSERTIONS_NAME} = {sorted(active_assert_ids)!r}",
+    ]
+    if setup:
+        parts.append(setup)
+    parts.append(ast.unparse(check_fn))
     parts.append(f"from candidate import {entry_point} as candidate")
-    parts.extend(assertions)
+    parts.append("check(candidate)")
     return "\n\n".join(parts).rstrip() + "\n"
 
 
@@ -166,20 +178,14 @@ def fetch_source(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
-def validate_materialized_row(row: dict[str, Any]) -> None:
-    missing = REQUIRED_OUTPUT_FIELDS - set(row)
-    if missing:
-        raise RuntimeError(f"Materialized task {row.get('task_id')} is missing {sorted(missing)}")
-
-
 def materialize(manifest_path: str | Path, output_path: str | Path) -> Path:
     manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
     rows = fetch_source(manifest)
     by_id = {row["task_id"]: row for row in rows}
     selected = manifest["tasks"]
 
-    if len(selected) != int(manifest["task_count"]):
-        raise RuntimeError("Manifest task count is inconsistent with its task list")
+    if len(selected) != int(manifest["task_count"]) or int(manifest["task_count"]) != 100:
+        raise RuntimeError("EXP-001 requires exactly 100 selected tasks")
     if len({row["task_id"] for row in selected}) != len(selected):
         raise RuntimeError("Manifest contains duplicate task IDs")
 
@@ -187,7 +193,9 @@ def materialize(manifest_path: str | Path, output_path: str | Path) -> Path:
     for entry in selected:
         source = by_id.get(entry["task_id"])
         if source is None:
-            raise RuntimeError(f"Manifest task missing from official source: {entry['task_id']}")
+            raise RuntimeError(
+                f"Manifest task missing from official source: {entry['task_id']}"
+            )
 
         task_hash = canonical_task_hash(source)
         test_hash = test_source_hash(source["test"])
@@ -202,12 +210,15 @@ def materialize(manifest_path: str | Path, output_path: str | Path) -> Path:
                 f"manifest={entry['test_sha256']} source={test_hash}"
             )
 
-        visible, hidden, assertion_count = split_assertions(source["test"])
-        if assertion_count != int(entry["assertion_count"]):
+        assert_count = len(_assert_nodes(source["test"]))
+        if assert_count < 2:
             raise RuntimeError(
-                f"Assertion-count mismatch for {entry['task_id']}: "
-                f"manifest={entry['assertion_count']} source={assertion_count}"
+                f"Task {entry['task_id']} has fewer than two executable assertions"
             )
+
+        cut = (assert_count + 1) // 2
+        visible_ids = list(range(cut))
+        hidden_ids = list(range(cut, assert_count))
 
         row = {
             "task_id": source["task_id"],
@@ -221,11 +232,24 @@ def materialize(manifest_path: str | Path, output_path: str | Path) -> Path:
             "source_commit": manifest["provenance"]["source_commit"],
             "source_path": manifest["provenance"]["source_path"],
             "prompt_transform": "strip_doctest_examples_v1",
-            "visible_tests": _build_test_source(source["entry_point"], source["test"], visible),
-            "hidden_tests": _build_test_source(source["entry_point"], source["test"], hidden),
-            "assertion_count": assertion_count,
+            "visible_tests": _build_test_source(
+                source["entry_point"], source["test"], visible_ids
+            ),
+            "hidden_tests": _build_test_source(
+                source["entry_point"], source["test"], hidden_ids
+            ),
+            "assertion_count": assert_count,
+            "assertion_split": {
+                "visible_assertion_ids": visible_ids,
+                "hidden_assertion_ids": hidden_ids,
+                "split_policy": "static_assert_source_order_v1",
+            },
         }
-        validate_materialized_row(row)
+        missing = REQUIRED_OUTPUT_FIELDS - set(row)
+        if missing:
+            raise RuntimeError(
+                f"Materialized task {row['task_id']} missing {sorted(missing)}"
+            )
         materialized.append(row)
 
     output = Path(output_path)
