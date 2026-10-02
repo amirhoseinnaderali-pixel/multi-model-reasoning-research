@@ -4,7 +4,7 @@
 
 > **Portfolio status:** `REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION`
 >
-> **EXP-001 status:** `IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED`
+> **EXP-001 status:** `IMPLEMENTED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED`
 >
 > **Reading guide.** Every number in §5 is a **pre-registered expectation (a prior)**, written **before** any real-model execution. These are **not measurements** and must not be cited as results. The "Observed" columns stay `pending` until `results/raw/EXP-001` is produced by a real-mode run that passes all gates in §8.
 
