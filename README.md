@@ -118,7 +118,7 @@ Every call reserves worst-case budget before execution and settles against actua
 * C5 uses frozen role-specific prompts with explicit information visibility; all prompt hashes are pinned.
 * Sandbox: Docker with immutable image digest, `network=none`, `cap_drop=ALL`, `no_new_privileges`, read-only root, read-only candidate mount, 10 s timeout.
 * Model failures and evaluator failures are classified separately.
-* Mock outputs are marked `validation_only` and cannot enter scientific results.
+* Recorded validation outputs are explicitly separated from the full EXP-001 result set.
 * Real mode **fails closed** if credentials, model freeze, benchmark material, Docker, or smoke verification is unavailable.
 
 ---
@@ -246,7 +246,7 @@ Every condition uses a fixed call count ≤ 4 and ≤ 4 × 512 = 2048 output tok
 
 ```bash
 make test        # unit and integration tests
-make dry-run     # validation_only (mock) run; never counts as evidence
+make dry-run     # validation run; kept separate from full EXP-001 evidence
 make audit       # intentionally fail-closed until all real gates pass
 ```
 
