@@ -878,7 +878,7 @@
   ],
   "integrity": {
     "hash_algorithm": "sha256",
-    "manifest_content_sha256": "35c956244f0b7600933409d3e834a021a9c32ea531286b303387f76fc274f3d0"
+    "manifest_content_sha256": "6e04487c16e94197f0524283f49bb9302898ad5e4affa9d7b8a29d32d07878b8"
   },
   "status": "frozen",
   "materialization": {
