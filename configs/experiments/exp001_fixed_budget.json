@@ -1,0 +1,17 @@
+{
+  "experiment_id":"EXP-001",
+  "title":"Fixed-Budget Multi-Model Collaboration Benchmark",
+  "research_question":"Under a fixed inference-time compute budget, does collaboration between multiple language models improve objective task correctness compared with a single-model baseline?",
+  "conditions":["C0","C1","C2","C3","C4","C5","C6"],
+  "seeds":[42,43,44],
+  "budgets":["B1","B2","B3","B4"],
+  "benchmark_manifest":"benchmarks/manifests/exp001_v1.json",
+  "materialized_tasks":"benchmarks/programming/exp001_v1/tasks.jsonl",
+  "models":"configs/models/models.json",
+  "prompt":"prompts/reasoning-v1.txt",
+  "docker_image":"python:3.12-slim@sha256:REPLACE_WITH_FROZEN_DIGEST",
+  "real_execution":false,
+  "status":"READY_PENDING_EXTERNAL_BENCHMARK_MATERIALIZATION_MODEL_FREEZE_AND_DOCKER_DIGEST",
+  "mock_policy":"validation_only outputs never enter scientific results",
+  "hidden_test_policy":"hidden tests never enter strategy context or candidate selection"
+}
