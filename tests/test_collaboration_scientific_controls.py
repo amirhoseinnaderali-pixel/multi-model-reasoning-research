@@ -269,3 +269,64 @@ def test_c6_propagates_infrastructure_failure_without_marking_wrong_answer():
             },
             verifier=BrokenSelector(),
         )
+
+
+def test_c6_candidate_verifier_uses_visible_tests_only_and_ignores_hidden_data():
+    from multi_model_reasoning.verification.docker_verifier import CandidateVerifier
+    from multi_model_reasoning.verification.result import VerificationResult, Verdict
+
+    class RecordingExecutionVerifier:
+        def __init__(self):
+            self.test_sources=[]
+        def verify(self, code, test_source, timeout_seconds):
+            self.test_sources.append(test_source)
+            passed=1 if code=="A" else 0
+            return VerificationResult(Verdict.PASS, passed, 1, 0.1, "")
+
+    def select(hidden_tests):
+        cv=CandidateVerifier.__new__(CandidateVerifier)
+        cv.verifier=RecordingExecutionVerifier()
+        cv.visible_tests="VISIBLE"
+        cv.hidden_tests=hidden_tests
+        cv.timeout_seconds=1.0
+        selected=cv.select_visible(["A","B"])
+        return selected, cv.verifier.test_sources
+
+    selected1, sources1=select("HIDDEN-ONE")
+    selected2, sources2=select("HIDDEN-TWO")
+    assert selected1==selected2=="A"
+    assert sources1==sources2==["VISIBLE","VISIBLE"]
+    
+def test_c6_visible_selection_is_deterministic_on_ties():
+    from multi_model_reasoning.verification.docker_verifier import CandidateVerifier
+    from multi_model_reasoning.verification.result import VerificationResult, Verdict
+
+    class EqualExecutionVerifier:
+        def verify(self, code, test_source, timeout_seconds):
+            return VerificationResult(Verdict.PASS, 1, 1, 0.1, "")
+
+    cv=CandidateVerifier.__new__(CandidateVerifier)
+    cv.verifier=EqualExecutionVerifier()
+    cv.visible_tests="VISIBLE"
+    cv.hidden_tests="HIDDEN"
+    cv.timeout_seconds=1.0
+    assert cv.select_visible(["B","A"])=="B"
+    assert cv.select_visible(["B","A"])=="B"
+
+def test_c6_infrastructure_failure_stays_distinct():
+    from multi_model_reasoning.verification.docker_verifier import CandidateVerifier
+    from multi_model_reasoning.verification.result import VerificationResult, Verdict
+
+    class BrokenExecutionVerifier:
+        def verify(self, code, test_source, timeout_seconds):
+            return VerificationResult(Verdict.INFRA_FAILURE, 0, 0, 0.1, "docker unavailable")
+
+    cv=CandidateVerifier.__new__(CandidateVerifier)
+    cv.verifier=BrokenExecutionVerifier()
+    cv.visible_tests="VISIBLE"
+    cv.hidden_tests="HIDDEN"
+    cv.timeout_seconds=1.0
+
+    import pytest
+    with pytest.raises(RuntimeError,match="docker unavailable"):
+        cv.select_visible(["A","C"])
