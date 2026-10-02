@@ -1,5 +1,11 @@
 # Multi-Model Reasoning Research
 
+### Portfolio status
+
+**REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION**
+
+The C0–C6 instrument is implemented and hardened, but no controlled real-model result set matching the P6 research question was recovered. Earlier multi-agent repositories are treated as lineage, not as P6 empirical results.
+
 Controlled research infrastructure for studying **multi-model / collective reasoning** in large language models.
 
 ## EXP-001
@@ -60,3 +66,6 @@ Real mode has no mock fallback.
 ## Paper status
 
 **IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED.**
+
+
+See [docs/research_report.md](docs/research_report.md) for the historical evidence audit and conclusion.
