@@ -11,7 +11,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Iterable
 
-EXPECTED_SOURCE_TASK_COUNT = 164
+# EXP-001 freeze materializer: canonical HumanEval source only; no alternate dataset fallback.\nEXPECTED_SOURCE_TASK_COUNT = 164
 REQUIRED_OUTPUT_FIELDS = {
     "task_id",
     "task_sha256",
