@@ -20,7 +20,15 @@ Conditions:
 - **C3** — Debate / Critique
 - **C4** — Sequential Collaborative Refinement
 - **C5** — Explicit Solver / Critic / Verifier / Synthesizer specialization
-- **C6** — Collaboration + Objective Verification
+- **C6** — Sequential Solver → Critic/Refinement → Synthesizer, followed by independent visible objective verification
+
+### C2 vs C6
+
+**C2 is independent generation:** A, B, and C each receive the original problem independently and produce separate solver candidates. Visible objective execution then selects among those independent candidates.
+
+**C6 is collaborative refinement:** A produces an initial candidate; B receives A and critiques/refines it; C receives A plus B's critique and produces a revised candidate. The independent objective verifier then performs deterministic visible-test selection between executable candidates A and C. B is critique metadata, not a candidate for execution selection.
+
+Thus C6 contains inter-model information flow while C2 intentionally does not.
 
 Seeds: `42, 43, 44`.
 
@@ -33,10 +41,10 @@ Secondary metrics: calls, generated tokens, latency, estimated cost, and explici
 ## Scientific safeguards
 
 - Budget reservation occurs **before** each model call.
-- C1/C2 candidate selection uses visible objective execution, not exact string majority.
-- Hidden tests never enter strategy context or candidate selection.
-- C5 roles use separate versioned prompts with explicit information visibility.
-- Objective execution is independent of LLM self-evaluation.
+- C1/C2/C6 selection uses visible objective execution, not exact string majority.
+- Hidden tests never enter strategy prompts, critique, refinement, ranking, or visible selection.
+- C6 and C5 use separate versioned role-specific prompt artifacts.
+- Objective execution is independent of language-model judgment.
 - Infrastructure failures are distinct from wrong answers, timeouts, malformed outputs, and model failures.
 - Prompts, model configs, benchmark provenance, seeds, execution traces, and git state are traceable.
 - Mock validation is structurally marked `validation_only` and cannot enter scientific analysis.
@@ -45,9 +53,9 @@ Secondary metrics: calls, generated tokens, latency, estimated cost, and explici
 
 ## Current status
 
-**IMPLEMENTED / NOT EXECUTED.**
+**IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED.**
 
-The software scaffold, seven collaboration protocols, budget enforcement, benchmark provenance gate, objective-verification interfaces, statistical utilities, validation-only dry run, tests, and fail-closed audit are implemented.
+The software scaffold, seven collaboration protocols, hard budget enforcement, benchmark provenance gate, objective-verification interfaces, validation-only dry run, targeted scientific controls, and fail-closed audit are implemented.
 
 The scientific experiment remains **not executable until external inputs are frozen**: benchmark task material, model snapshots/pricing, and an immutable Docker image digest. The repository intentionally does not fabricate any of them.
 
@@ -59,15 +67,11 @@ make dry-run
 make audit
 ```
 
-`make audit` is expected to fail closed until the real-execution gates are satisfied.
-
-## Lineage
-
-Previous repositories are **READ-ONLY source material** and are not modified by this project. Methodological lessons are documented in `docs/research_lineage.md`, with `efficient-reasoning-research` serving as the immediate methodological predecessor for fixed budgets, objective evaluation, manifests, and auditability.
+`make audit` is expected to fail closed until the external execution gates are satisfied.
 
 ## Real execution
 
-After freezing the benchmark material, model configuration, pricing, role prompts, and Docker digest:
+After freezing the benchmark material, model configuration, pricing, all role prompt artifacts, and the Docker digest:
 
 ```bash
 make preflight
