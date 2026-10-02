@@ -16,6 +16,17 @@ def main():
     if not tasks.exists(): errors.append("materialized task file missing")
     if not models.exists(): errors.append("model config missing")
 
+    role_prompts=cfg.get("role_prompts",{})
+    required_prompts={"solver","critic","verifier","synthesizer"}
+    if required_prompts-set(role_prompts):
+        errors.append("C5 role prompt mapping is incomplete")
+    for role in sorted(required_prompts & set(role_prompts)):
+        path=Path(role_prompts[role])
+        if not path.exists():
+            errors.append(f"missing role prompt artifact: {role}")
+        elif not path.read_text().splitlines() or not path.read_text().splitlines()[0].startswith("VERSION:"):
+            errors.append(f"role prompt lacks explicit VERSION header: {role}")
+
     if manifest.exists() and json.loads(manifest.read_text()).get("status","").startswith("provenance_manifest_only"):
         errors.append("benchmark task materialization pending")
 
