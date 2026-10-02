@@ -93,3 +93,45 @@ def test_c5_records_four_roles_and_uses_role_specific_prompt_versions():
         "solver-v1","critic-v1","verifier-v1","synthesizer-v1"
     ]
     assert [e["model_role"] for e in calls]==["A","B","C","D"]
+
+class RecordingAdapter:
+    def __init__(self, role):
+        self.role=role
+        self.calls=[]
+
+    def generate(self, *, prompt, system_prompt, model_id, temperature, top_p, max_tokens, seed):
+        from multi_model_reasoning.models.adapter import GenerationResult
+        self.calls.append({"prompt":prompt,"system_prompt":system_prompt})
+        return GenerationResult(
+            text=f"{self.role}-output",
+            input_tokens=len(prompt.split()),
+            output_tokens=1,
+            latency_seconds=0.001,
+            model_id=model_id,
+        )
+
+def test_c5_information_visibility_is_explicit():
+    adapters={r:RecordingAdapter(r) for r in "ABCD"}
+    engine=CollaborationEngine(adapters,Budget(4,256,30,1))
+    engine.run(
+        spec=get_strategy("C5"),
+        problem="ORIGINAL PROBLEM",
+        system_prompt="fallback-must-not-be-used",
+        generation_kwargs={
+            "model_configs":configs(),
+            "role_prompts":role_prompts(),
+            "worst_case_seconds":1,
+        },
+    )
+    assert "ORIGINAL PROBLEM" in adapters["A"].calls[0]["prompt"]
+    assert "A-output" in adapters["B"].calls[0]["prompt"]
+    assert "A-output" in adapters["C"].calls[0]["prompt"]
+    assert "B-output" in adapters["C"].calls[0]["prompt"]
+    assert "A-output" in adapters["D"].calls[0]["prompt"]
+    assert "B-output" in adapters["D"].calls[0]["prompt"]
+    assert "C-output" in adapters["D"].calls[0]["prompt"]
+    assert "HIDDEN" not in adapters["C"].calls[0]["prompt"]
+    assert [c["system_prompt"] for c in adapters["A"].calls] == ["SOLVER"]
+    assert [c["system_prompt"] for c in adapters["B"].calls] == ["CRITIC"]
+    assert [c["system_prompt"] for c in adapters["C"].calls] == ["VERIFIER"]
+    assert [c["system_prompt"] for c in adapters["D"].calls] == ["SYNTHESIZER"]
