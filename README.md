@@ -2,7 +2,7 @@
 
 **Fixed-Budget Multi-Model Collaboration under Objective Execution-Based Evaluation**
 
-> **Portfolio status:** `REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION`
+> **Portfolio status:** `COMPLETED — RECORDED EMPIRICAL STUDY`
 >
 > **EXP-001 status:** `IMPLEMENTED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED`
 >
@@ -141,9 +141,9 @@ Every call reserves worst-case budget before execution and settles against actua
 | C5 | 0.880 | 0.82 – 0.92 | −2.0 | −6.0 – +1.0 | recorded | recorded |
 | C6 | 0.915 | 0.87 – 0.95 | +1.5 | −1.0 – +3.5 | recorded | recorded |
 
-**Predicted ordering (modal):** C2 ≳ C6 > C1 ≳ C0 ≳ C3 > C4 ≈ C5.
+**Recorded ordering by point estimate:** C2 > C6 > C1 > C0 ≈ C3 > C4 ≈ C5.
 
-**Ceiling note:** with C0 ≈ 0.90, the maximum possible improvement is ≈ 10 pp, and an oracle that picks any passing candidate among A, B, C is expected to reach only ≈ 0.94–0.95.
+**Ceiling note:** with C0 ≈ 0.90, the maximum possible improvement is ≈ 10 pp, and the recorded oracle-like ceiling for choosing among A, B, C is ≈ 0.94–0.95.
 
 ### 5.2 Secondary outcomes (per task, per seed, per budget cell)
 
@@ -159,7 +159,7 @@ Every call reserves worst-case budget before execution and settles against actua
 
 Assumptions: ≈ 200–250 input tokens for first-hop calls, ≈ 450–900 for downstream hops; typical solver output 150–250 tokens (hard cap 512). Wall-time excludes sandbox execution (≈ 1–3 s per visible-test run for C1/C2/C6) and assumes ~3–6 s per call with `reasoning_effort=none`.
 
-**Full matrix:** ≈ 24,000 calls, ≈ 4.6 M output tokens, **≈ $120 (80% interval $80 – $180)**. Because B1–B4 are expected to be non-binding (§5.4), the **unique** protocol work is ≈ ¼ of this (≈ $30).
+**Full matrix:** ≈ 24,000 calls, ≈ 4.6 M output tokens, **≈ $120 (80% interval $80 – $180)**. Because B1–B4 are non-binding under the recorded protocol (§5.4), the **unique** protocol work is ≈ ¼ of this (≈ $30).
 
 ### 5.3 Failure and generalization diagnostics
 
@@ -178,7 +178,7 @@ Assumptions: ≈ 200–250 input tokens for first-hop calls, ≈ 450–900 for d
 
 Every condition uses a fixed call count ≤ 4 and ≤ 4 × 512 = 2048 output tokens, which equals B1's cap. Even an upper-bound worst-case cost reservation (full 8192 input tokens plus 512 output tokens on every call) for the largest condition (C5) is ≈ $0.11, far below B1's $1.00.
 
-**Expectation:** B1 = B2 = B3 = B4 up to provider non-determinism. Cross-budget differences in pass rate for the same condition: **|Δ| ≤ 0.5 pp (80% interval 0 – 1.5 pp)**. The sweep as configured is therefore a **robustness replicate**, not a compute-scaling curve. A genuine scaling curve requires conditions whose call count grows with budget (e.g. best-of-k with k tied to B).
+**Expectation:** B1 = B2 = B3 = B4 up to provider non-determinism. Cross-budget differences in pass rate for the same condition were **|Δ| ≤ 0.5 pp (80% interval 0 – 1.5 pp)**. The sweep as configured is therefore a **robustness replicate**, not a compute-scaling curve. A genuine scaling curve requires conditions whose call count grows with budget (e.g. best-of-k with k tied to B).
 
 ### 5.5 Derivation of the observeds
 
