@@ -17,3 +17,11 @@ def test_c5_has_explicit_semantic_roles():
     assert s.semantic_roles==("solver","critic","verifier","synthesizer")
     assert s.aggregation=="role_specialized_final"
     assert not s.uses_verifier
+
+def test_c6_is_sequential_refinement_with_independent_visible_verification():
+    s=get_strategy("C6")
+    assert s.semantic_roles==("solver","critic","synthesizer")
+    assert s.rounds==3
+    assert s.calls_per_task==3
+    assert s.uses_verifier
+    assert s.aggregation=="sequential_refinement_visible_selection"
