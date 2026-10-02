@@ -33,9 +33,10 @@ SPECS = {
         ("solver", "critic", "verifier", "synthesizer"), False, "role_specialized_final"
     ),
     "C6": StrategySpec(
-        "C6", "collaboration_verified",
-        "independent collaborative candidates with visible-test selection and hidden-test final evaluation",
-        3, 2, ("A", "B", "C"), ("solver", "solver", "solver"), True, "visible_objective_selection"
+        "C6", "collaborative_refinement_verified",
+        "sequential solver -> critic/refinement -> synthesizer, followed by independent visible-test candidate selection",
+        3, 3, ("A", "B", "C"),
+        ("solver", "critic", "synthesizer"), True, "sequential_refinement_visible_selection"
     ),
 }
 
