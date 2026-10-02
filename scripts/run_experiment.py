@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,uuid,platform,sys,subprocess
+import argparse,json,uuid,platform,sys,subprocess\nfrom datetime import datetime,timezone
 from pathlib import Path
 
 sys.path.insert(0,"src")
@@ -12,7 +12,7 @@ from multi_model_reasoning.collaboration.engine import CollaborationEngine
 from multi_model_reasoning.models.mock import MockAdapter
 from multi_model_reasoning.models.openai_adapter import OpenAIAdapter
 from multi_model_reasoning.evaluation.schema import validate_result
-from multi_model_reasoning.logging.manifest import git_sha,hash_json
+from multi_model_reasoning.logging.manifest import git_sha,hash_json,installed_package_versions
 from multi_model_reasoning.verification.mock import MockVerifier
 from benchmarks.loaders.manifest import load_materialized_tasks
 
