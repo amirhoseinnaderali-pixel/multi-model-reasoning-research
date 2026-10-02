@@ -166,8 +166,21 @@ def main():
                     capture_output=True,
                     timeout=20,
                 )
-                if inspect.returncode != 0 or docker_image not in inspect.stdout:
-                    errors.append("Docker resolved digest does not match declared digest")
+                repo_digests = inspect.stdout.strip()
+                print(f"DOCKER_REPO_DIGESTS: {repo_digests}")
+                declared_digest = docker_image.split("@", 1)[1]
+                if inspect.returncode != 0:
+                    errors.append("Docker image inspect failed")
+                else:
+                    try:
+                        resolved = json.loads(repo_digests)
+                    except json.JSONDecodeError:
+                        resolved = []
+                    if not any(str(item).endswith("@"+declared_digest) for item in resolved):
+                        errors.append(
+                            "Docker resolved digest does not match declared digest: "
+                            f"declared={declared_digest} resolved={resolved}"
+                        )
         except Exception as exc:
             errors.append(f"Docker verification failed: {exc}")
 
