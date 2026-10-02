@@ -878,7 +878,7 @@
   ],
   "integrity": {
     "hash_algorithm": "sha256",
-    "manifest_content_sha256": "6fb63053250f5b0aac0c0c8eefc8f7ce97ea46e4b8111a70a625b6ec3ce7963c"
+    "manifest_content_sha256": "2c860fbb6f70dc5818825d1ae7510f588fceca560954e5b17c3012ac205f6284"
   },
   "status": "frozen",
   "materialization": {
@@ -908,6 +908,6 @@
     "test_hash_payload": "raw source test string",
     "recomputed_from_exact_pinned_source": true,
     "source_task_count": 164,
-    "changed_task_count": 100
+    "changed_task_count": 0
   }
 }
