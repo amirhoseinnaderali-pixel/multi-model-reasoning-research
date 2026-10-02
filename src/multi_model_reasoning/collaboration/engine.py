@@ -117,8 +117,8 @@ class CollaborationEngine:
                     seed_override = base_seed + index
                 outputs.append(
                     self._generate(
-                        role, semantic_role, problem, system_prompt,
-                        generation_kwargs, seed_override=seed_override
+                        spec.condition, role, semantic_role, problem, system_prompt,
+                        generation_kwargs, seed_override=seed_override, round_index=1
                     )
                 )
 
