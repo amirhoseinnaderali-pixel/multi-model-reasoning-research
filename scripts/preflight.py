@@ -134,13 +134,33 @@ def main():
         version = str(x.get("model_version", ""))
         if not version or version in {"REQUIRED", "latest", "default"}:
             errors.append(f"model version {role} is not frozen")
+        if x.get("provider") != "openai":
+            errors.append(f"model role {role} provider is not openai")
+        if x.get("api_endpoint") != "https://api.openai.com/v1":
+            errors.append(f"model role {role} API endpoint is not frozen to the registered OpenAI endpoint")
+        if x.get("endpoint") != "chat.completions":
+            errors.append(f"model role {role} endpoint must be chat.completions")
+        if x.get("model_version") != x.get("model_id"):
+            errors.append(f"model role {role} must use the exact frozen model identifier as model_version")
+        if x.get("model_id", "").endswith("-latest") or x.get("model_id") in {"latest","default"}:
+            errors.append(f"model role {role} uses an alias instead of an exact frozen identifier")
+        if x.get("reasoning_effort") not in {"none","low","medium","high","xhigh"}:
+            errors.append(f"reasoning_effort is not frozen for model role {role}")
+        if x.get("service_tier") != "default":
+            errors.append(f"service_tier must be default for model role {role}")
         for field in ("usd_per_1k_input_tokens", "usd_per_1k_output_tokens"):
             value = x.get(field)
             if not isinstance(value, (int, float)) or value <= 0:
                 errors.append(f"real pricing is not frozen for model role {role}: {field}")
-        for field in ("pricing_unit", "pricing_currency", "pricing_source", "pricing_effective_date"):
-            if not x.get(field):
-                errors.append(f"pricing metadata missing for model role {role}: {field}")
+        if x.get("pricing_unit") != "usd_per_1k_tokens":
+            errors.append(f"pricing unit is not frozen for model role {role}")
+        if x.get("pricing_currency") != "USD":
+            errors.append(f"pricing currency is not frozen for model role {role}")
+        source = str(x.get("pricing_source", ""))
+        if not source.startswith("https://developers.openai.com/api/docs/models/"):
+            errors.append(f"pricing source is not an official OpenAI model page for role {role}")
+        if not x.get("pricing_effective_date"):
+            errors.append(f"pricing verification date missing for model role {role}")
         if x.get("max_input_tokens", 0) <= 0 or x.get("max_tokens", 0) <= 0:
             errors.append(f"token limits must be positive for model role {role}")
 
@@ -189,6 +209,10 @@ def main():
 
     if cfg.get("real_execution") is not True:
         errors.append("experiment config is intentionally non-executable")
+    if cfg.get("docker_source", {}).get("smoke_test_verified") is not True:
+        errors.append("real Docker sandbox smoke test has not been verified")
+    if not cfg.get("role_mapping"):
+        errors.append("registered role mapping is missing from experiment config")
 
     print("READY" if not errors else "NOT READY")
     for item in errors:

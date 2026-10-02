@@ -19,27 +19,27 @@ jobs:
       - run: python -m pip install -e ".[test]"
       - name: Materialize and validate frozen benchmark
         run: |
-          python scripts/materialize_exp001_benchmark.py             --manifest benchmarks/manifests/exp001_v1.json             --output benchmarks/programming/exp001_v1/tasks.jsonl
+          python scripts/materialize_exp001_benchmark.py --manifest benchmarks/manifests/exp001_v1.json --output benchmarks/programming/exp001_v1/tasks.jsonl
           python scripts/validate_benchmark.py
-      - name: Fail-closed execution preflight
+      - name: Required validation targets
+        run: |
+          make test
+          make dry-run
+          set +e
+          make audit
+          status=$?
+          if [ "$status" -ne 2 ]; then
+            echo "Audit must fail closed with exit code 2 until real smoke credentials and execution gates are satisfied."
+            exit 1
+          fi
+      - name: Fail-closed preflight
         run: |
           set +e
           python scripts/preflight.py --config configs/experiments/exp001_fixed_budget.json
           status=$?
           if [ "$status" -ne 2 ]; then
-            echo "Expected preflight to exit 2 while external runtime/model inputs remain unfrozen."
+            echo "Preflight must fail closed until real execution gates are satisfied."
             exit 1
           fi
-
-      - name: Fail-closed scientific audit
-        run: |
-          set +e
-          python scripts/scientific_audit.py
-          status=$?
-          if [ "$status" -ne 2 ]; then
-            echo "Expected scientific audit to exit 2 while external runtime/model inputs remain unfrozen."
-            exit 1
-          fi
-
       - run: python -m pytest
       - run: python scripts/run_experiment.py --config configs/experiments/exp001_fixed_budget.json --mode validation_only

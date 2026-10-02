@@ -1,4 +1,19 @@
 from .protocols import StrategySpec
+from ..budgeting import BudgetExceeded
+
+
+def _classify_model_failure(exc):
+    text = str(exc).lower()
+    if isinstance(exc, BudgetExceeded):
+        return "budget_exceeded"
+    if "api key" in text or "authentication" in text or "unauthorized" in text:
+        return "credential_failure"
+    if "timeout" in text or "timed out" in text:
+        return "timeout"
+    if "connection" in text or "network" in text or "server error" in text or "503" in text:
+        return "infrastructure_failure"
+    return "model_failure"
+
 
 class CollaborationEngine:
     """Execute an explicit collaboration protocol under a hard inference budget."""
@@ -44,7 +59,7 @@ class CollaborationEngine:
         try:
             call_kwargs = {
                 k: v for k, v in role_cfg.items()
-                if k in {"model_id", "temperature", "top_p", "max_tokens", "seed"}
+                if k in {"model_id","temperature","top_p","max_tokens","seed","api_endpoint","reasoning_effort","service_tier"}
             }
             res = self.adapters[role].generate(
                 prompt=prompt,
@@ -71,23 +86,46 @@ class CollaborationEngine:
                 "model_id": res.model_id,
                 "seed": int(role_cfg["seed"]),
                 "round": int(round_index),
-                "order": len([e for e in self.last_trace if e.get("event")=="model_call"]) + 1,
+                "order": len([e for e in self.last_trace if e.get("event") in {"model_call","model_call_failure"}]) + 1,
                 "prompt_version": prompt_version,
                 "prompt_path": prompt_path,
                 "input_tokens": res.input_tokens,
                 "output_tokens": res.output_tokens,
                 "latency_seconds": res.latency_seconds,
                 "estimated_cost_usd": actual_cost,
+                "api_endpoint": role_cfg.get("api_endpoint"),
+                "reasoning_effort": role_cfg.get("reasoning_effort"),
+                "service_tier": getattr(res, "service_tier", role_cfg.get("service_tier")),
+                "system_fingerprint": getattr(res, "system_fingerprint", None),
             })
             return res
-        except Exception:
+        except Exception as exc:
+            failure_classification = _classify_model_failure(exc)
             self.budget.settle_call(
                 actual_output_tokens=0,
                 actual_cost_usd=0.0,
+                actual_wall_seconds=0.0,
                 reserved_output_tokens=max_tokens,
                 reserved_wall_seconds=worst_case_seconds,
                 reserved_cost_usd=worst_case_cost,
             )
+            self.last_trace.append({
+                "event": "model_call_failure",
+                "condition": condition,
+                "model_role": role,
+                "semantic_role": semantic_role,
+                "model_id": role_cfg.get("model_id"),
+                "seed": int(role_cfg["seed"]),
+                "round": int(round_index),
+                "order": len([e for e in self.last_trace if e.get("event") in {"model_call","model_call_failure"}]) + 1,
+                "prompt_version": prompt_version,
+                "prompt_path": prompt_path,
+                "failure_classification": failure_classification,
+                "failure_message": str(exc)[-2000:],
+                "reserved_output_tokens": max_tokens,
+                "reserved_wall_seconds": worst_case_seconds,
+                "reserved_cost_usd": worst_case_cost,
+            })
             raise
 
     def run(self, *, spec: StrategySpec, problem, system_prompt, generation_kwargs, verifier=None):
@@ -95,33 +133,25 @@ class CollaborationEngine:
         self.last_trace = []
 
         if spec.condition == "C5":
-            required = {"solver", "critic", "verifier", "synthesizer"}
+            required = {"solver","critic","verifier","synthesizer"}
             missing = required - set(generation_kwargs.get("role_prompts", {}))
             if missing:
                 raise RuntimeError(f"C5 requires versioned prompts for semantic roles: {sorted(missing)}")
-            if any(role not in generation_kwargs.get("model_configs", {}) for role in ("A", "B", "C", "D")):
+            if any(role not in generation_kwargs.get("model_configs", {}) for role in ("A","B","C","D")):
                 raise RuntimeError("C5 requires explicit model configuration for A/B/C/D")
 
-        if spec.condition in {"C0", "C1", "C2"}:
-            roles = (
-                list(spec.model_pool)
-                if spec.condition == "C2"
-                else [spec.model_pool[0]] * spec.calls_per_task
-            )
+        if spec.condition in {"C0","C1","C2"}:
+            roles = list(spec.model_pool) if spec.condition == "C2" else [spec.model_pool[0]] * spec.calls_per_task
             for index, role in enumerate(roles):
                 semantic_role = spec.semantic_roles[index] if index < len(spec.semantic_roles) else "solver"
                 seed_override = None
                 if spec.condition == "C1":
-                    # Distinct deterministic seeds preserve independence within one task/run.
                     base_seed = int(generation_kwargs["model_configs"][role]["seed"])
                     seed_override = base_seed + index
-                outputs.append(
-                    self._generate(
-                        spec.condition, role, semantic_role, problem, system_prompt,
-                        generation_kwargs, seed_override=seed_override, round_index=1
-                    )
-                )
-
+                outputs.append(self._generate(
+                    spec.condition, role, semantic_role, problem, system_prompt,
+                    generation_kwargs, seed_override=seed_override, round_index=1
+                ))
             if spec.condition == "C0":
                 final = outputs[0].text
             else:
@@ -133,108 +163,70 @@ class CollaborationEngine:
                     "condition": spec.condition,
                     "selection_split": "visible",
                     "candidate_count": len(outputs),
+                    "candidate_sources": list(spec.model_pool) if spec.condition == "C2" else ["A","A","A"],
                 })
 
         elif spec.condition == "C3":
-            a = self._generate(spec.condition, "A", "solver", problem, system_prompt, generation_kwargs, round_index=1)
-            b = self._generate(
-                spec.condition, "B",
-                "critic",
-                problem + "\n\nCANDIDATE:\n" + a.text,
-                system_prompt,
-                generation_kwargs,
-            )
-            c = self._generate(
-                spec.condition, "A",
-                "solver",
-                problem + "\n\nCANDIDATE:\n" + a.text
-                + "\n\nCRITIQUE:\n" + b.text,
-                system_prompt,
-                generation_kwargs,
-            )
-            outputs = [a, b, c]
-            final = c.text
+            a = self._generate(spec.condition,"A","solver",problem,system_prompt,generation_kwargs,round_index=1)
+            b = self._generate(spec.condition,"B","critic",problem+"\n\nCANDIDATE:\n"+a.text,system_prompt,generation_kwargs,round_index=2)
+            c = self._generate(spec.condition,"A","solver",problem+"\n\nCANDIDATE:\n"+a.text+"\n\nCRITIQUE:\n"+b.text,system_prompt,generation_kwargs,round_index=3)
+            outputs=[a,b,c]
+            final=c.text
 
         elif spec.condition == "C4":
-            context = problem
-            for role, semantic_role in zip(spec.model_pool, spec.semantic_roles):
-                res = self._generate(spec.condition, role, semantic_role, context, system_prompt, generation_kwargs, round_index=len(outputs)+1)
+            context=problem
+            for index,(role,semantic_role) in enumerate(zip(spec.model_pool,spec.semantic_roles),start=1):
+                res=self._generate(spec.condition,role,semantic_role,context,system_prompt,generation_kwargs,round_index=index)
                 outputs.append(res)
-                context += "\n\nPREVIOUS OUTPUT:\n" + res.text
-            final = outputs[-1].text
+                context += "\n\nPREVIOUS OUTPUT:\n"+res.text
+            final=outputs[-1].text
 
         elif spec.condition == "C5":
-            solver = self._generate(spec.condition, "A", "solver", problem, system_prompt, generation_kwargs, round_index=1)
-            critic = self._generate(
-                spec.condition, "B", "critic",
-                problem
-                + "\n\nCANDIDATE SOLUTION:\n" + solver.text,
-                system_prompt, generation_kwargs,
+            solver=self._generate(spec.condition,"A","solver",problem,system_prompt,generation_kwargs,round_index=1)
+            critic=self._generate(spec.condition,"B","critic",problem+"\n\nCANDIDATE SOLUTION:\n"+solver.text,system_prompt,generation_kwargs,round_index=2)
+            language_verifier=self._generate(
+                spec.condition,"C","verifier",
+                problem+"\n\nCANDIDATE SOLUTION:\n"+solver.text+"\n\nCRITIQUE:\n"+critic.text,
+                system_prompt,generation_kwargs,round_index=3
             )
-            verifier = self._generate(
-                spec.condition, "C", "verifier",
-                problem
-                + "\n\nCANDIDATE SOLUTION:\n" + solver.text
-                + "\n\nCRITIQUE:\n" + critic.text,
-                system_prompt, generation_kwargs,
+            synthesizer=self._generate(
+                spec.condition,"D","synthesizer",
+                problem+"\n\nCANDIDATE SOLUTION:\n"+solver.text+"\n\nCRITIQUE:\n"+critic.text+"\n\nVERIFICATION NOTES:\n"+language_verifier.text,
+                system_prompt,generation_kwargs,round_index=4
             )
-            synthesizer = self._generate(
-                spec.condition, "D", "synthesizer",
-                problem
-                + "\n\nCANDIDATE SOLUTION:\n" + solver.text
-                + "\n\nCRITIQUE:\n" + critic.text
-                + "\n\nVERIFICATION NOTES:\n" + verifier.text,
-                system_prompt, generation_kwargs,
-            )
-            outputs = [solver, critic, verifier, synthesizer]
-            final = synthesizer.text
+            outputs=[solver,critic,language_verifier,synthesizer]
+            final=synthesizer.text
 
         elif spec.condition == "C6":
-            required = {"solver", "critic", "synthesizer"}
-            specs = generation_kwargs.get("role_prompts_by_condition", {}).get("C6", {})
-            missing = required - set(specs)
+            required={"solver","critic","synthesizer"}
+            specs=generation_kwargs.get("role_prompts_by_condition",{}).get("C6",{})
+            missing=required-set(specs)
             if missing:
                 raise RuntimeError(f"C6 requires versioned prompts for semantic roles: {sorted(missing)}")
-            if any(role not in generation_kwargs.get("model_configs", {}) for role in ("A", "B", "C")):
+            if any(role not in generation_kwargs.get("model_configs",{}) for role in ("A","B","C")):
                 raise RuntimeError("C6 requires explicit model configuration for A/B/C")
-
-            initial = self._generate(
-                spec.condition, "A", "solver", problem, system_prompt,
-                generation_kwargs, round_index=1
+            initial=self._generate(spec.condition,"A","solver",problem,system_prompt,generation_kwargs,round_index=1)
+            critique=self._generate(
+                spec.condition,"B","critic",
+                problem+"\n\nCANDIDATE FROM MODEL A:\n"+initial.text,
+                system_prompt,generation_kwargs,round_index=2
             )
-            critique_prompt = (
-                problem
-                + "\n\nCANDIDATE FROM MODEL A:\n" + initial.text
+            revised=self._generate(
+                spec.condition,"C","synthesizer",
+                problem+"\n\nINITIAL CANDIDATE FROM MODEL A:\n"+initial.text+"\n\nCRITIQUE/REFINEMENT FROM MODEL B:\n"+critique.text,
+                system_prompt,generation_kwargs,round_index=3
             )
-            critique = self._generate(
-                spec.condition, "B", "critic", critique_prompt, system_prompt,
-                generation_kwargs, round_index=2
-            )
-            synthesis_prompt = (
-                problem
-                + "\n\nINITIAL CANDIDATE FROM MODEL A:\n" + initial.text
-                + "\n\nCRITIQUE/REFINEMENT FROM MODEL B:\n" + critique.text
-            )
-            revised = self._generate(
-                spec.condition, "C", "synthesizer", synthesis_prompt, system_prompt,
-                generation_kwargs, round_index=3
-            )
-            outputs = [initial, critique, revised]
-
-            if verifier is None or not hasattr(verifier, "select_visible"):
+            outputs=[initial,critique,revised]
+            if verifier is None or not hasattr(verifier,"select_visible"):
                 raise RuntimeError("C6 requires independent objective visible-test selection")
-
-            # B is critique, not a candidate artifact. Selection compares the
-            # initial executable candidate A with the revised executable candidate C.
-            final = verifier.select_visible([initial.text, revised.text])
+            final=verifier.select_visible([initial.text,revised.text])
             self.last_trace.append({
-                "event": "objective_selection",
-                "condition": spec.condition,
-                "selection_split": "visible",
-                "candidate_count": 2,
-                "candidate_sources": ["A:initial", "C:revised"],
+                "event":"objective_selection",
+                "condition":"C6",
+                "selection_split":"visible",
+                "candidate_count":2,
+                "candidate_sources":["A:initial","C:revised"],
             })
-
         else:
             raise ValueError(spec.condition)
 

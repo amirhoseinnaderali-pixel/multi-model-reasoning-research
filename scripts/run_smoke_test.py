@@ -22,6 +22,11 @@ from multi_model_reasoning.models.openai_adapter import OpenAIAdapter
 from multi_model_reasoning.verification.docker_verifier import CandidateVerifier
 
 
+def failure_from_verdict(verdict):
+    value = getattr(verdict, "value", str(verdict))
+    return "none" if value == "pass" else value
+
+
 SMOKE_SEED = 42
 SMOKE_BUDGET_ID = "B1"
 SMOKE_CONDITIONS = ("C0", "C1", "C2", "C3", "C4", "C5", "C6")
@@ -74,11 +79,14 @@ def main():
             "usd_per_1k_input_tokens": models[role]["usd_per_1k_input_tokens"],
             "usd_per_1k_output_tokens": models[role]["usd_per_1k_output_tokens"],
             "seed": SMOKE_SEED,
+            "api_endpoint": models[role]["api_endpoint"],
+            "reasoning_effort": models[role]["reasoning_effort"],
+            "service_tier": models[role]["service_tier"],
         }
         for role in models
     }
 
-    adapters = {role: OpenAIAdapter() for role in models}
+    adapters = {role: OpenAIAdapter(api_endpoint=models[role]["api_endpoint"]) for role in models}
     records = []
 
     for condition in SMOKE_CONDITIONS:
@@ -93,6 +101,7 @@ def main():
             cfg["docker_image"],
             task["visible_tests"],
             task["hidden_tests"],
+            timeout_seconds=cfg.get("sandbox", {}).get("timeout_seconds", 10.0),
         )
         engine = CollaborationEngine(adapters, budget)
         final, outputs = engine.run(
@@ -108,6 +117,9 @@ def main():
             verifier=verifier if spec.uses_verifier else None,
         )
 
+        visible_smoke_result = verifier.verify(final, task["visible_tests"], cfg.get("sandbox", {}).get("timeout_seconds", 10.0))
+        if visible_smoke_result.verdict.value == "infrastructure_failure":
+            raise RuntimeError(visible_smoke_result.message)
         hidden_result = verifier.verify_hidden(final)
         record = {
             "experiment_id": cfg["experiment_id"],
@@ -119,12 +131,17 @@ def main():
             "seed": SMOKE_SEED,
             "git_sha": git_sha(),
             "config_hash": hash_json(cfg),
-            "benchmark_hash": hash_json(task),
-            "model_config_hash": hash_json(models),
+            "benchmark_hash": load_json(cfg["benchmark_manifest"])["integrity"]["manifest_content_sha256"],
+            "task_hash": task["task_sha256"],
+            "model_config_hash": hash_json({"models": models, "role_mapping": cfg.get("role_mapping", {})}),
             "prompt_hash": hash_json(role_prompts_by_condition),
             "docker_digest": cfg["docker_image"],
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "objective_verdict": hidden_result.verdict.value,
+            "failure_classification": failure_from_verdict(hidden_result.verdict),
+            "failure_message": hidden_result.message,
+            "visible_smoke_verdict": visible_smoke_result.verdict.value,
+            "hidden_smoke_verdict": hidden_result.verdict.value,
             "model_calls": len(outputs),
             "output_tokens": sum(x.output_tokens for x in outputs),
             "latency_seconds": sum(x.latency_seconds for x in outputs),
@@ -149,7 +166,8 @@ def main():
 
         out = Path("results/smoke_test/EXP-001") / f"{condition}.json"
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+        out.write_text(json.dumps(record, indent=2) + "
+", encoding="utf-8")
 
     summary = {
         "run_scope": "smoke_test",
@@ -162,7 +180,8 @@ def main():
         "records": len(records),
     }
     Path("results/smoke_test/EXP-001/summary.json").write_text(
-        json.dumps(summary, indent=2) + "\n",
+        json.dumps(summary, indent=2) + "
+",
         encoding="utf-8",
     )
     print("REAL_EXECUTION_SMOKE_TEST COMPLETE")

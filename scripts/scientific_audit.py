@@ -42,6 +42,18 @@ def main():
     c3 = SPECS["C3"]
     c4 = SPECS["C4"]
     c5 = SPECS["C5"]
+    registered_roles = cfg.get("role_mapping", {})
+    expected_roles = {
+        "C0": {"solver": ["A"]},
+        "C1": {"solver": ["A","A","A"]},
+        "C2": {"solver": ["A","B","C"]},
+        "C3": {"solver": ["A","A"], "critic": ["B"]},
+        "C4": {"solver": ["A","B","C"]},
+        "C5": {"solver": ["A"], "critic": ["B"], "verifier": ["C"], "synthesizer": ["D"]},
+        "C6": {"solver": ["A"], "critic": ["B"], "synthesizer": ["C"]},
+    }
+    if registered_roles != expected_roles:
+        errors.append("registered role mapping does not match C0-C6 protocol")
 
     if c2.model_pool != ("A", "B", "C") or c2.semantic_roles != ("solver", "solver", "solver"):
         errors.append("C2 must remain independent multi-model solver generation")
@@ -112,13 +124,19 @@ def main():
         blockers.append("benchmark manifest is not frozen")
     if not Path(cfg["materialized_tasks"]).exists():
         blockers.append("benchmark task artifact is not materialized")
-    models = json.loads(Path(cfg["models"]).read_text())["models"]
+    models = json.loads(Path(cfg["models"]).read_text())
     for role in "ABCD":
         model = models.get(role, {})
         if str(model.get("model_id", "")).startswith("REPLACE_WITH") or model.get("model_version") in (None, "REQUIRED"):
             blockers.append(f"model role {role} is not frozen")
+        if model.get("model_id") != model.get("model_version"):
+            blockers.append(f"model role {role} lacks exact model_version pin")
+        if model.get("api_endpoint") != "https://api.openai.com/v1" or model.get("endpoint") != "chat.completions":
+            blockers.append(f"model role {role} API endpoint is not frozen")
         if not model.get("pricing_source") or model.get("pricing_effective_date") is None:
             blockers.append(f"pricing metadata for model role {role} is not frozen")
+    if cfg.get("docker_source", {}).get("smoke_test_verified") is not True:
+        blockers.append("real Docker sandbox smoke test has not passed")
 
     for error in errors:
         print("FAIL:", error)

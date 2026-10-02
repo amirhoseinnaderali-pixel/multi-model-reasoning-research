@@ -12,8 +12,18 @@ Models A, B, and C each receive the original problem without seeing another mode
 
 Model A (solver) produces an initial candidate from the original problem. Model B (critic) receives the original problem and A's candidate and produces critique/refinement guidance. Model C (synthesizer) receives the original problem, A's candidate, and B's critique and produces a revised candidate.
 
-The independent execution verifier then performs visible-test selection between the executable A and C candidates. B's critique is not itself a candidate. Hidden tests are withheld from every model and from visible selection until after the selected candidate is fixed.
+The independent execution verifier performs visible-test selection between executable A and C candidates. B's critique is not a candidate. Hidden tests are withheld from every model and from visible selection until after the selected candidate is fixed.
 
-Each C6 call uses a versioned role-specific prompt artifact, and the run trace records role, model identity, prompt version, round/order, token usage, latency, and cost accounting.
+### C5 — role isolation
 
-No empirical result is claimed here until EXP-001 is actually executed and analyzed.
+C5 freezes separate solver, critic, verifier, and synthesizer prompts. Each role receives only the information explicitly permitted by the registered protocol.
+
+### Budget and provenance
+
+Every model call reserves worst-case output tokens, wall time, and cost before execution and settles against actual usage afterward. Scientific records include reserved and actual budget quantities, model/config/prompt hashes, benchmark provenance, Git SHA, Docker digest, seed, trace, objective result, and failure classification.
+
+### Paper status
+
+**IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED.**
+
+No accuracy, cost, significance, or overall strategy conclusion is reported before the full EXP-001 matrix is executed.

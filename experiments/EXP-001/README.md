@@ -4,28 +4,31 @@ Status: **IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED**.
 
 Primary question: under a fixed inference-time compute budget, does collaboration between multiple language models improve objective task correctness compared with C0?
 
-Conditions: C0–C6. Seeds: 42, 43, 44. Budget sweep: B1–B4.
+Conditions: C0-C6. Seeds: 42, 43, 44. Budget sweep: B1-B4.
 
-## C2 — Independent Multi-Model
+## Frozen models
 
-Models A, B, and C independently receive the original problem. No model sees another model's candidate before generation. Visible objective execution deterministically selects among the three executable candidates.
+A = `gpt-5.5-2026-04-23`  
+B = `gpt-5.4-2026-03-05`  
+C = `gpt-5.4-mini-2026-03-17`  
+D = `gpt-5.2-2025-12-11`
 
-## C6 — Collaborative Refinement + Objective Verification
+Exact model IDs, endpoint, generation parameters, and provider pricing are recorded in `configs/models/models.json`.
 
-Protocol:
+## C2
 
-`Problem → A/solver → B/critic → C/synthesizer → independent verifier`
+Models A, B, and C independently receive the original problem. No candidate-to-candidate information is available during generation. Visible objective execution selects among the three executable candidates.
 
-Model B receives Model A's candidate.
+## C6
 
-Model C receives Model A's candidate and Model B's critique.
+`Problem -> A/solver -> B/critic -> C/synthesizer -> visible objective selection`
 
-The independent verifier evaluates candidate A and candidate C on visible tests only and deterministically selects the final candidate for hidden-test evaluation. Model B's critique is not a candidate.
-
-C6 therefore differs from C2 by **information flow and refinement semantics**, not merely by model labels.
+Model B receives A's candidate. Model C receives A's candidate and B's critique. Visible selection compares only A-initial and C-revised candidates. B remains critique metadata.
 
 ## Hidden-test boundary
 
-Hidden tests and hidden-test outcomes are unavailable to all C6 language-model calls and cannot influence visible selection. They are evaluation-only.
+Hidden tests and hidden-test outcomes are unavailable to all model calls and to visible selection. They are evaluation-only and are run only after candidate selection.
 
-Scientific results are pending real execution.
+## Execution gate
+
+The repository remains fail-closed until the real Docker smoke test passes and execution credentials are available. No mock output can enter `results/raw/EXP-001`.

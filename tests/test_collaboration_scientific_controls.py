@@ -330,3 +330,22 @@ def test_c6_infrastructure_failure_stays_distinct():
     import pytest
     with pytest.raises(RuntimeError,match="docker unavailable"):
         cv.select_visible(["A","C"])
+
+
+def test_c2_candidates_are_independent_and_receive_no_prior_outputs():
+    adapters = {r: RecordingAdapter(r) for r in "ABCD"}
+    engine = CollaborationEngine(adapters, Budget(3, 256, 30, 1))
+    engine.run(
+        spec=get_strategy("C2"),
+        problem="ORIGINAL",
+        system_prompt="fallback",
+        generation_kwargs={
+            "model_configs": configs(),
+            "role_prompts": role_prompts(),
+            "worst_case_seconds": 1,
+        },
+        verifier=type("Selector", (), {"select_visible": lambda self, candidates: candidates[0]})(),
+    )
+    prompts = [adapters[r].calls[0]["prompt"] for r in ("A", "B", "C")]
+    assert prompts == ["ORIGINAL", "ORIGINAL", "ORIGINAL"]
+    assert all("A-output" not in p and "B-output" not in p and "C-output" not in p for p in prompts)
