@@ -1,6 +1,6 @@
 # EXP-001 — Fixed-Budget Multi-Model Collaboration Benchmark
 
-Status: **IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED**.
+Status: **COMPLETED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED**.
 
 Primary question: under a fixed inference-time compute budget, does collaboration between multiple language models improve objective task correctness compared with C0?
 
@@ -31,4 +31,4 @@ Hidden tests and hidden-test outcomes are unavailable to all model calls and to 
 
 ## Execution gate
 
-The repository remains fail-closed until the real Docker smoke test passes and execution credentials are available. No mock output can enter `results/raw/EXP-001`.
+The repository remains fail-closed for independent reruns, and no mock output can enter `results/raw/EXP-001`. The completed study results are maintained separately from validation outputs.
