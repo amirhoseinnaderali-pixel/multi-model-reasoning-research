@@ -20,8 +20,8 @@ REQUIRED = {
 }
 
 
-def sha256_text(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def manifest_content_sha256(manifest: dict) -> str:
@@ -61,19 +61,30 @@ def validate() -> None:
     for row, expected in zip(lines, manifest["tasks"], strict=True):
         missing = REQUIRED - set(row)
         if missing:
-            raise SystemExit(f"BENCHMARK FREEZE FAILED: {row.get('task_id')} missing {sorted(missing)}")
+            raise SystemExit(
+                f"BENCHMARK FREEZE FAILED: {row.get('task_id')} missing {sorted(missing)}"
+            )
         if row["task_sha256"] != expected["task_sha256"]:
-            raise SystemExit(f"BENCHMARK FREEZE FAILED: task hash mismatch for {row['task_id']}")
+            raise SystemExit(
+                f"BENCHMARK FREEZE FAILED: task hash mismatch for {row['task_id']}"
+            )
         if row["test_sha256"] != expected["test_sha256"]:
-            raise SystemExit(f"BENCHMARK FREEZE FAILED: test hash mismatch for {row['task_id']}")
+            raise SystemExit(
+                f"BENCHMARK FREEZE FAILED: test hash mismatch for {row['task_id']}"
+            )
         if row["source_commit"] != manifest["provenance"]["source_commit"]:
-            raise SystemExit(f"BENCHMARK FREEZE FAILED: wrong source commit for {row['task_id']}")
+            raise SystemExit(
+                f"BENCHMARK FREEZE FAILED: wrong source commit for {row['task_id']}"
+            )
         if not row["visible_tests"].strip() or not row["hidden_tests"].strip():
-            raise SystemExit(f"BENCHMARK FREEZE FAILED: empty test suite for {row['task_id']}")
+            raise SystemExit(
+                f"BENCHMARK FREEZE FAILED: empty test suite for {row['task_id']}"
+            )
 
     print("BENCHMARK FREEZE VERIFIED")
-    print(f"tasks=100")
+    print("tasks=100")
     print(f"manifest_sha256={expected_manifest_hash}")
+    print(f"materialized_tasks_sha256={sha256_file(TASKS_PATH)}")
     print(f"source_commit={manifest['provenance']['source_commit']}")
 
 
