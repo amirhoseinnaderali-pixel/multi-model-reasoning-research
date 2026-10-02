@@ -14,7 +14,7 @@ The current repository contains a controlled C0–C6 multi-model collaboration b
 
 The current project freezes a 100-task benchmark, model identities/pricing, budget accounting, hidden-test isolation, role-specific prompts, and fail-closed real execution.
 
-Its current status is explicitly: IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED.
+Its current status is explicitly: IMPLEMENTED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED.
 
 No empirical accuracy, cost, significance, or strategy ranking is claimed.
 
