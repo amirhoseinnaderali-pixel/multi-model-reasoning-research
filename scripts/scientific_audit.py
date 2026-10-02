@@ -45,8 +45,8 @@ def main():
 
     if c2.model_pool != ("A", "B", "C") or c2.semantic_roles != ("solver", "solver", "solver"):
         errors.append("C2 must remain independent multi-model solver generation")
-    if c3.model_pool != ("A", "B") or c3.semantic_roles != ("solver", "critic", "solver"):
-        errors.append("C3 solver/critic/solver protocol changed")
+    if c3.model_pool != ("A", "B") or c3.rounds != 2 or c3.calls_per_task != 3 or c3.semantic_roles != ("solver", "critic"):
+        errors.append("C3 debate/critique protocol changed")
     if c4.model_pool != ("A", "B", "C"):
         errors.append("C4 model pool changed")
     if c5.model_pool != ("A", "B", "C", "D") or c5.semantic_roles != ("solver", "critic", "verifier", "synthesizer"):
