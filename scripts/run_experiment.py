@@ -19,8 +19,7 @@ from benchmarks.loaders.manifest import load_materialized_tasks
 def load_json(p):
     return json.loads(Path(p).read_text())
 
-def load_role_prompts(cfg):
-    paths=cfg["role_prompts"]
+def load_prompt_map(paths):
     return {
         role: {
             "path": path,
@@ -30,10 +29,20 @@ def load_role_prompts(cfg):
         for role, path in paths.items()
     }
 
+def load_role_prompts(cfg):
+    return load_prompt_map(cfg["role_prompts"])
+
+def load_condition_role_prompts(cfg):
+    result={"C5": load_prompt_map(cfg["role_prompts"])}
+    if "c6_role_prompts" in cfg:
+        result["C6"]=load_prompt_map(cfg["c6_role_prompts"])
+    return result
+
 def run_validation(cfg):
     adapters={r:MockAdapter(r) for r in "ABCD"}
     records=[]
     role_prompts=load_role_prompts(cfg)
+    role_prompts_by_condition=load_condition_role_prompts(cfg)
     model_configs={
         r:{
             "model_id":"mock",
@@ -119,6 +128,7 @@ def main():
     models=load_json(cfg["models"])["models"]
     tasks=load_materialized_tasks(cfg["materialized_tasks"])
     role_prompts=load_role_prompts(cfg)
+    role_prompts_by_condition=load_condition_role_prompts(cfg)
     adapters={r:OpenAIAdapter() for r in models}
 
     from multi_model_reasoning.verification.docker_verifier import CandidateVerifier
@@ -167,6 +177,7 @@ def main():
                         generation_kwargs={
                             "model_configs":model_configs,
                             "role_prompts":role_prompts,
+                            "role_prompts_by_condition":role_prompts_by_condition,
                             "worst_case_seconds":30,
                         },
                         verifier=verifier,
