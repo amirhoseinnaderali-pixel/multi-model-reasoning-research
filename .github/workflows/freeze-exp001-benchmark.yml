@@ -1,6 +1,7 @@
 name: freeze-exp001-benchmark
 
 on:
+  workflow_dispatch:
   push:
     branches: ["main"]
     paths:
