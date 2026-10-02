@@ -10,6 +10,7 @@ def validate_result(record):
     missing=REQUIRED_RESULT_FIELDS-set(record)
     if missing:
         raise ValueError(f"missing result fields: {sorted(missing)}")
+
     if record["validation_only"] and not str(record["run_id"]).startswith("validation-"):
         raise ValueError("validation_only records must use validation-* IDs")
     if not record["validation_only"] and str(record["run_id"]).startswith("validation-"):
@@ -33,8 +34,14 @@ def validate_result(record):
     trace=record["execution_trace"]
     if not isinstance(trace,list):
         raise ValueError("execution_trace must be a list")
+
+    required_trace_fields={
+        "condition","model_role","semantic_role","model_id","seed",
+        "round","order","prompt_version","input_tokens","output_tokens",
+        "latency_seconds","estimated_cost_usd",
+    }
     for event in trace:
         if event.get("event")=="model_call":
-            for field in ("model_role","semantic_role","model_id","seed","prompt_version"):
-                if field not in event:
-                    raise ValueError(f"model trace missing {field}")
+            missing_trace=required_trace_fields-set(event)
+            if missing_trace:
+                raise ValueError(f"model trace missing {sorted(missing_trace)}")
