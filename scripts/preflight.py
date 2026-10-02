@@ -17,6 +17,7 @@ def main():
     if not models.exists(): errors.append("model config missing")
 
     role_prompts=cfg.get("role_prompts",{})
+    c6_role_prompts=cfg.get("c6_role_prompts",{})
     required_prompts={"solver","critic","verifier","synthesizer"}
     if required_prompts-set(role_prompts):
         errors.append("C5 role prompt mapping is incomplete")
@@ -26,6 +27,17 @@ def main():
             errors.append(f"missing role prompt artifact: {role}")
         elif not path.read_text().splitlines() or not path.read_text().splitlines()[0].startswith("VERSION:"):
             errors.append(f"role prompt lacks explicit VERSION header: {role}")
+    required_c6_prompts={"solver","critic","synthesizer"}
+    if required_c6_prompts-set(c6_role_prompts):
+        errors.append("C6 role prompt mapping is incomplete")
+    for role in sorted(required_c6_prompts & set(c6_role_prompts)):
+        path=Path(c6_role_prompts[role])
+        if not path.exists():
+            errors.append(f"missing C6 role prompt artifact: {role}")
+        else:
+            lines=path.read_text().splitlines()
+            if not lines or not lines[0].startswith("VERSION: c6-"):
+                errors.append(f"C6 role prompt must have VERSION: c6- header: {role}")
 
     if manifest.exists() and json.loads(manifest.read_text()).get("status","").startswith("provenance_manifest_only"):
         errors.append("benchmark task materialization pending")
