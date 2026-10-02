@@ -1,6 +1,6 @@
 # Limitations
 
-- EXP-001 is not yet executed; no empirical result is available.
+- EXP-001 is completed and has recorded empirical results; interpretation remains bounded by the frozen benchmark and small task population.
 - HumanEval-derived programming tasks measure executable correctness, not every form of reasoning.
 - Model capability differences remain a potential confound; C1 isolates repeated sampling from model diversity.
 - OpenAI documents seed as best-effort rather than strict deterministic replay; response fingerprints are therefore recorded when available.
