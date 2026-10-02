@@ -17,7 +17,7 @@ def base():
         "aggregation_strategy":"identity",
         "execution_trace":[{
             "event":"model_call","model_role":"A","semantic_role":"solver",
-            "model_id":"mock","seed":1,"prompt_version":"solver-v1"
+            "model_id":"mock","seed":1,"round":1,"order":1,"prompt_version":"solver-v1","input_tokens":1,"output_tokens":1,"latency_seconds":0.1,"estimated_cost_usd":0
         }],
     }
 
