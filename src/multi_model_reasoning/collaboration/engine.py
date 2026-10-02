@@ -136,16 +136,16 @@ class CollaborationEngine:
                 })
 
         elif spec.condition == "C3":
-            a = self._generate("A", spec.condition, "solver", problem, system_prompt, generation_kwargs, round_index=1)
+            a = self._generate(spec.condition, "A", "solver", problem, system_prompt, generation_kwargs, round_index=1)
             b = self._generate(
-                "B", spec.condition,
+                spec.condition, "B",
                 "critic",
                 problem + "\n\nCANDIDATE:\n" + a.text,
                 system_prompt,
                 generation_kwargs,
             )
             c = self._generate(
-                "A", spec.condition,
+                spec.condition, "A",
                 "solver",
                 problem + "\n\nCANDIDATE:\n" + a.text
                 + "\n\nCRITIQUE:\n" + b.text,
@@ -158,28 +158,28 @@ class CollaborationEngine:
         elif spec.condition == "C4":
             context = problem
             for role, semantic_role in zip(spec.model_pool, spec.semantic_roles):
-                res = self._generate(role, spec.condition, semantic_role, context, system_prompt, generation_kwargs, round_index=len(outputs)+1)
+                res = self._generate(spec.condition, role, semantic_role, context, system_prompt, generation_kwargs, round_index=len(outputs)+1)
                 outputs.append(res)
                 context += "\n\nPREVIOUS OUTPUT:\n" + res.text
             final = outputs[-1].text
 
         elif spec.condition == "C5":
-            solver = self._generate("A", spec.condition, "solver", problem, system_prompt, generation_kwargs, round_index=1)
+            solver = self._generate(spec.condition, "A", "solver", problem, system_prompt, generation_kwargs, round_index=1)
             critic = self._generate(
-                "B", spec.condition, "critic",
+                spec.condition, "B", "critic",
                 problem
                 + "\n\nCANDIDATE SOLUTION:\n" + solver.text,
                 system_prompt, generation_kwargs,
             )
             verifier = self._generate(
-                "C", spec.condition, "verifier",
+                spec.condition, "C", "verifier",
                 problem
                 + "\n\nCANDIDATE SOLUTION:\n" + solver.text
                 + "\n\nCRITIQUE:\n" + critic.text,
                 system_prompt, generation_kwargs,
             )
             synthesizer = self._generate(
-                "D", spec.condition, "synthesizer",
+                spec.condition, "D", "synthesizer",
                 problem
                 + "\n\nCANDIDATE SOLUTION:\n" + solver.text
                 + "\n\nCRITIQUE:\n" + critic.text
@@ -199,7 +199,7 @@ class CollaborationEngine:
                 raise RuntimeError("C6 requires explicit model configuration for A/B/C")
 
             initial = self._generate(
-                "A", spec.condition, "solver", problem, system_prompt,
+                spec.condition, "A", "solver", problem, system_prompt,
                 generation_kwargs, round_index=1
             )
             critique_prompt = (
@@ -207,7 +207,7 @@ class CollaborationEngine:
                 + "\n\nCANDIDATE FROM MODEL A:\n" + initial.text
             )
             critique = self._generate(
-                "B", spec.condition, "critic", critique_prompt, system_prompt,
+                spec.condition, "B", "critic", critique_prompt, system_prompt,
                 generation_kwargs, round_index=2
             )
             synthesis_prompt = (
@@ -216,7 +216,7 @@ class CollaborationEngine:
                 + "\n\nCRITIQUE/REFINEMENT FROM MODEL B:\n" + critique.text
             )
             revised = self._generate(
-                "C", spec.condition, "synthesizer", synthesis_prompt, system_prompt,
+                spec.condition, "C", "synthesizer", synthesis_prompt, system_prompt,
                 generation_kwargs, round_index=3
             )
             outputs = [initial, critique, revised]
