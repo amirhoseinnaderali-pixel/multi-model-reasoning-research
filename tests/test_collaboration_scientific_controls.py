@@ -135,3 +135,137 @@ def test_c5_information_visibility_is_explicit():
     assert [c["system_prompt"] for c in adapters["B"].calls] == ["CRITIC"]
     assert [c["system_prompt"] for c in adapters["C"].calls] == ["VERIFIER"]
     assert [c["system_prompt"] for c in adapters["D"].calls] == ["SYNTHESIZER"]
+
+
+def c6_role_prompts():
+    return {
+        "solver":{"path":"prompts/c6-solver-v1.txt","version":"c6-solver-v1","text":"C6 SOLVER"},
+        "critic":{"path":"prompts/c6-critic-v1.txt","version":"c6-critic-v1","text":"C6 CRITIC"},
+        "synthesizer":{"path":"prompts/c6-synthesizer-v1.txt","version":"c6-synthesizer-v1","text":"C6 SYNTHESIZER"},
+    }
+
+def test_c6_has_collaborative_semantic_roles_and_differs_from_c2():
+    c6=get_strategy("C6")
+    c2=get_strategy("C2")
+    assert c6.semantic_roles==("solver","critic","synthesizer")
+    assert c6.rounds==3
+    assert c6.uses_verifier
+    assert c6.aggregation=="sequential_refinement_visible_selection"
+    assert c6.semantic_roles!=c2.semantic_roles
+    assert c6.description!=c2.description
+
+def test_c6_model_b_receives_a_and_c_receives_a_and_b():
+    adapters={r:RecordingAdapter(r) for r in "ABCD"}
+    engine=CollaborationEngine(adapters,Budget(3,256,30,1))
+    engine.run(
+        spec=get_strategy("C6"),
+        problem="ORIGINAL",
+        system_prompt="fallback",
+        generation_kwargs={
+            "model_configs":configs(),
+            "role_prompts":role_prompts(),
+            "role_prompts_by_condition":{"C6":c6_role_prompts()},
+            "worst_case_seconds":1,
+        },
+        verifier=type("Selector",(),{"select_visible":lambda self,candidates:candidates[-1]})(),
+    )
+    assert "ORIGINAL" in adapters["A"].calls[0]["prompt"]
+    assert "A-output" in adapters["B"].calls[0]["prompt"]
+    assert "ORIGINAL" in adapters["B"].calls[0]["prompt"]
+    assert "A-output" in adapters["C"].calls[0]["prompt"]
+    assert "B-output" in adapters["C"].calls[0]["prompt"]
+
+def test_c6_hidden_test_changes_do_not_change_collaboration_or_selection():
+    class HiddenAwareSelector:
+        def __init__(self, hidden):
+            self.hidden=hidden
+            self.visible_calls=[]
+        def select_visible(self,candidates):
+            self.visible_calls.append(tuple(candidates))
+            return candidates[-1]
+
+    def run(hidden):
+        adapters={r:RecordingAdapter(r) for r in "ABCD"}
+        selector=HiddenAwareSelector(hidden)
+        engine=CollaborationEngine(adapters,Budget(3,256,30,1))
+        selected,_=engine.run(
+            spec=get_strategy("C6"),
+            problem="ORIGINAL",
+            system_prompt="fallback",
+            generation_kwargs={
+                "model_configs":configs(),
+                "role_prompts":role_prompts(),
+                "role_prompts_by_condition":{"C6":c6_role_prompts()},
+                "worst_case_seconds":1,
+            },
+            verifier=selector,
+        )
+        prompts={r:adapters[r].calls[0]["prompt"] for r in ("A","B","C")}
+        return prompts, selected, selector.visible_calls
+
+    p1,s1,v1=run("HIDDEN_SET_1")
+    p2,s2,v2=run("HIDDEN_SET_2")
+    assert p1==p2
+    assert s1==s2
+    assert v1==v2
+
+def test_c6_trace_contains_role_prompt_round_order_tokens_latency_and_cost():
+    engine=CollaborationEngine({r:MockAdapter(r) for r in "ABCD"},Budget(3,256,30,1))
+    engine.run(
+        spec=get_strategy("C6"),
+        problem="p",
+        system_prompt="fallback",
+        generation_kwargs={
+            "model_configs":configs(),
+            "role_prompts":role_prompts(),
+            "role_prompts_by_condition":{"C6":c6_role_prompts()},
+            "worst_case_seconds":1,
+        },
+        verifier=type("Selector",(),{"select_visible":lambda self,candidates:candidates[-1]})(),
+    )
+    calls=[e for e in engine.last_trace if e["event"]=="model_call"]
+    assert [(e["model_role"],e["semantic_role"],e["round"],e["order"]) for e in calls]==[
+        ("A","solver",1,1),("B","critic",2,2),("C","synthesizer",3,3)
+    ]
+    assert all(e["condition"]=="C6" for e in calls)
+    assert all(e["prompt_version"].startswith("c6-") for e in calls)
+    assert all("input_tokens" in e and "output_tokens" in e and "latency_seconds" in e and "estimated_cost_usd" in e for e in calls)
+    assert engine.last_trace[-1]["selection_split"]=="visible"
+
+def test_c6_is_deterministic_for_identical_inputs():
+    def run_once():
+        engine=CollaborationEngine({r:MockAdapter(r) for r in "ABCD"},Budget(3,256,30,1))
+        final,outputs=engine.run(
+            spec=get_strategy("C6"),
+            problem="same problem",
+            system_prompt="fallback",
+            generation_kwargs={
+                "model_configs":configs(),
+                "role_prompts":role_prompts(),
+                "role_prompts_by_condition":{"C6":c6_role_prompts()},
+                "worst_case_seconds":1,
+            },
+            verifier=type("Selector",(),{"select_visible":lambda self,candidates:candidates[-1]})(),
+        )
+        return final,[x.text for x in outputs],[(e["semantic_role"],e["prompt_version"]) for e in engine.last_trace if e["event"]=="model_call"]
+    assert run_once()==run_once()
+
+def test_c6_propagates_infrastructure_failure_without_marking_wrong_answer():
+    class BrokenSelector:
+        def select_visible(self,candidates):
+            raise RuntimeError("docker unavailable")
+    engine=CollaborationEngine({r:MockAdapter(r) for r in "ABCD"},Budget(3,256,30,1))
+    import pytest
+    with pytest.raises(RuntimeError,match="docker unavailable"):
+        engine.run(
+            spec=get_strategy("C6"),
+            problem="p",
+            system_prompt="fallback",
+            generation_kwargs={
+                "model_configs":configs(),
+                "role_prompts":role_prompts(),
+                "role_prompts_by_condition":{"C6":c6_role_prompts()},
+                "worst_case_seconds":1,
+            },
+            verifier=BrokenSelector(),
+        )
