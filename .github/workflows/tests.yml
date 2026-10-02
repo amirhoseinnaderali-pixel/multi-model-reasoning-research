@@ -21,5 +21,25 @@ jobs:
         run: |
           python scripts/materialize_exp001_benchmark.py             --manifest benchmarks/manifests/exp001_v1.json             --output benchmarks/programming/exp001_v1/tasks.jsonl
           python scripts/validate_benchmark.py
+      - name: Fail-closed execution preflight
+        run: |
+          set +e
+          python scripts/preflight.py --config configs/experiments/exp001_fixed_budget.json
+          status=$?
+          if [ "$status" -ne 2 ]; then
+            echo "Expected preflight to exit 2 while external runtime/model inputs remain unfrozen."
+            exit 1
+          fi
+
+      - name: Fail-closed scientific audit
+        run: |
+          set +e
+          python scripts/scientific_audit.py
+          status=$?
+          if [ "$status" -ne 2 ]; then
+            echo "Expected scientific audit to exit 2 while external runtime/model inputs remain unfrozen."
+            exit 1
+          fi
+
       - run: python -m pytest
       - run: python scripts/run_experiment.py --config configs/experiments/exp001_fixed_budget.json --mode validation_only
