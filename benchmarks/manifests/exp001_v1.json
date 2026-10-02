@@ -1,0 +1,10 @@
+{
+  "benchmark_id":"humaneval-stratified-100-v1",
+  "version":"1.0.0",
+  "task_type":"python_function_generation",
+  "task_count":100,
+  "status":"provenance_manifest_only__task_materialization_pending",
+  "provenance":{"canonical_source":"openai/human-eval","source_commit":"6d43fb980f9fee3c892a914eda09951f772ad10d","source_path":"data/HumanEval.jsonl.gz","derived_from_read_only_predecessor":"amirhoseinnaderali-pixel/efficient-reasoning-research"},
+  "evaluation_split_policy":{"type":"deterministic_assertion_split","visible_rule":"first ceil(n/2) top-level assert statements","hidden_rule":"remaining top-level assert statements","no_objective_selection_on_hidden":true},
+  "materialization_gate":{"required":true,"required_fields":["task_id","task_sha256","test_sha256"],"fail_closed":true}
+}
