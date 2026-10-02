@@ -51,7 +51,9 @@
     "registry": "Docker Hub",
     "image": "python:3.12-slim-bookworm",
     "immutable_digest": "sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e",
-    "runtime_resolution_verified": false
+    "runtime_resolution_verified": true,
+    "sandbox_execution_verified": false,
+    "verification_run": "github-actions:36988519357"
   },
   "prompt_freeze": {
     "hash_algorithm": "sha256",
@@ -117,7 +119,7 @@
     "benchmark": "frozen_manifest_and_materialized_artifact",
     "models": "not_frozen_missing_verified_runtime_access_and_role_mapping",
     "pricing": "not_frozen_until_actual_role_models_are_verified",
-    "docker": "immutable_digest_declared_runtime_unverified",
+    "docker": "immutable_digest_pull_and_resolution_verified; sandbox_execution_pending_real_smoke",
     "real_execution": false
   }
 }
