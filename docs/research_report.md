@@ -8,7 +8,7 @@ Under a fixed inference-time budget, does explicit multi-model collaboration imp
 
 REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION
 
-The current repository contains a controlled C0–C6 multi-model collaboration benchmark design, but the recorded empirical result set is used for the study from the repository or its visible Git history.
+The current repository contains a controlled C0–C6 multi-model collaboration benchmark design, but the recorded empirical result set is the basis of the study from the repository or its visible Git history.
 
 ## Evidence audit
 
