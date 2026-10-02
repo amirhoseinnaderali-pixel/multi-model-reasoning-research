@@ -79,7 +79,7 @@ def failure_from_exception(exc):
     if isinstance(exc, BudgetExceeded):
         return "budget_exceeded"
     text = str(exc).lower()
-    if "docker" in text or "sandbox" in text:
+    if "docker" in text or "sandbox" in text or "infrastructure" in text:
         return "infrastructure_failure"
     if "api key" in text or "authentication" in text or "unauthorized" in text:
         return "credential_failure"
@@ -115,7 +115,7 @@ def base_record(*, cfg, models, task, benchmark_hash, condition, spec, seed, bud
         "objective_verdict": objective_verdict,
         "failure_classification": failure_classification,
         "failure_message": failure_message,
-        "model_calls": len(outputs),
+        "model_calls": budget.calls,
         "output_tokens": sum(x.output_tokens for x in outputs),
         "latency_seconds": sum(x.latency_seconds for x in outputs),
         "estimated_cost_usd": budget.estimated_cost_usd,

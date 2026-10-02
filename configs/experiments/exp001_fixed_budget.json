@@ -2,9 +2,26 @@
   "experiment_id": "EXP-001",
   "title": "Fixed-Budget Multi-Model Collaboration Benchmark",
   "research_question": "Under a fixed inference-time compute budget, does collaboration between multiple language models improve objective task correctness compared with a single-model baseline?",
-  "conditions": ["C0","C1","C2","C3","C4","C5","C6"],
-  "seeds": [42,43,44],
-  "budgets": ["B1","B2","B3","B4"],
+  "conditions": [
+    "C0",
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6"
+  ],
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "budgets": [
+    "B1",
+    "B2",
+    "B3",
+    "B4"
+  ],
   "benchmark_manifest": "benchmarks/manifests/exp001_v1.json",
   "materialized_tasks": "benchmarks/programming/exp001_v1/tasks.jsonl",
   "models": "configs/models/models.json",
@@ -21,13 +38,66 @@
     "synthesizer": "prompts/c6-synthesizer-v1.txt"
   },
   "role_mapping": {
-    "C0": {"solver": ["A"]},
-    "C1": {"solver": ["A","A","A"]},
-    "C2": {"solver": ["A","B","C"]},
-    "C3": {"solver": ["A","A"], "critic": ["B"]},
-    "C4": {"solver": ["A","B","C"]},
-    "C5": {"solver": ["A"], "critic": ["B"], "verifier": ["C"], "synthesizer": ["D"]},
-    "C6": {"solver": ["A"], "critic": ["B"], "synthesizer": ["C"]}
+    "C0": {
+      "solver": [
+        "A"
+      ]
+    },
+    "C1": {
+      "solver": [
+        "A",
+        "A",
+        "A"
+      ]
+    },
+    "C2": {
+      "solver": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "C3": {
+      "solver": [
+        "A",
+        "A"
+      ],
+      "critic": [
+        "B"
+      ]
+    },
+    "C4": {
+      "solver": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "C5": {
+      "solver": [
+        "A"
+      ],
+      "critic": [
+        "B"
+      ],
+      "verifier": [
+        "C"
+      ],
+      "synthesizer": [
+        "D"
+      ]
+    },
+    "C6": {
+      "solver": [
+        "A"
+      ],
+      "critic": [
+        "B"
+      ],
+      "synthesizer": [
+        "C"
+      ]
+    }
   },
   "selection_policy": {
     "C1": "select candidate using visible objective execution only; hidden tests reserved for final evaluation",
@@ -54,29 +124,80 @@
   },
   "sandbox": {
     "network": "none",
-    "cap_drop": ["ALL"],
+    "cap_drop": [
+      "ALL"
+    ],
     "no_new_privileges": true,
     "read_only_root": true,
     "candidate_mount": "/work:ro",
-    "timeout_seconds": 10.0
+    "timeout_seconds": 10
   },
   "prompt_freeze": {
     "hash_algorithm": "sha256",
     "artifacts": {
-      "solver-v1": {"path":"prompts/solver-v1.txt","sha256":"539878eac914b38af92597ae3e88289014632e10734efe46d60e5dfdd08ec47b","conditions":["C0","C1","C2","C3","C4","C5"]},
-      "critic-v1": {"path":"prompts/critic-v1.txt","sha256":"d21fe854c9a95106bca85b8fb231f15dea0e7d23a6fae333c1d950e2fcc7283d","conditions":["C3","C5"]},
-      "verifier-v1": {"path":"prompts/verifier-v1.txt","sha256":"b96dc4b7fe35b3ed1d5880cafbffdf28d0f4aead0168e4c4a49537fc97e54448","conditions":["C5"]},
-      "synthesizer-v1": {"path":"prompts/synthesizer-v1.txt","sha256":"849375ae4f931ff0aab2295ea61e5456432758f2cc96a12332f7f516fa397dd4","conditions":["C5"]},
-      "c6-solver-v1": {"path":"prompts/c6-solver-v1.txt","sha256":"782d6d2613b49f45668380ef6721b776d5b2501826ecb79628aed3456406844f","conditions":["C6"]},
-      "c6-critic-v1": {"path":"prompts/c6-critic-v1.txt","sha256":"771971effef28511c172b62db7d816f7d5acda725d1e405ad81d5124d6a93dab","conditions":["C6"]},
-      "c6-synthesizer-v1": {"path":"prompts/c6-synthesizer-v1.txt","sha256":"a69050dca435ce88b9626ec70c0b07c616076bec9732255e3bef8072cc607cac","conditions":["C6"]}
+      "solver-v1": {
+        "path": "prompts/solver-v1.txt",
+        "sha256": "539878eac914b38af92597ae3e88289014632e10734efe46d60e5dfdd08ec47b",
+        "conditions": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5"
+        ]
+      },
+      "critic-v1": {
+        "path": "prompts/critic-v1.txt",
+        "sha256": "d21fe854c9a95106bca85b8fb231f15dea0e7d23a6fae333c1d950e2fcc7283d",
+        "conditions": [
+          "C3",
+          "C5"
+        ]
+      },
+      "verifier-v1": {
+        "path": "prompts/verifier-v1.txt",
+        "sha256": "b96dc4b7fe35b3ed1d5880cafbffdf28d0f4aead0168e4c4a49537fc97e54448",
+        "conditions": [
+          "C5"
+        ]
+      },
+      "synthesizer-v1": {
+        "path": "prompts/synthesizer-v1.txt",
+        "sha256": "849375ae4f931ff0aab2295ea61e5456432758f2cc96a12332f7f516fa397dd4",
+        "conditions": [
+          "C5"
+        ]
+      },
+      "c6-solver-v1": {
+        "path": "prompts/c6-solver-v1.txt",
+        "sha256": "782d6d2613b49f45668380ef6721b776d5b2501826ecb79628aed3456406844f",
+        "conditions": [
+          "C6"
+        ]
+      },
+      "c6-critic-v1": {
+        "path": "prompts/c6-critic-v1.txt",
+        "sha256": "771971effef28511c172b62db7d816f7d5acda725d1e405ad81d5124d6a93dab",
+        "conditions": [
+          "C6"
+        ]
+      },
+      "c6-synthesizer-v1": {
+        "path": "prompts/c6-synthesizer-v1.txt",
+        "sha256": "a69050dca435ce88b9626ec70c0b07c616076bec9732255e3bef8072cc607cac",
+        "conditions": [
+          "C6"
+        ]
+      }
     }
   },
   "benchmark_freeze": {
     "manifest_content_sha256": "e9e5079854577ee3035c787bc55804880894df39d571587a58bb2e2c9174f149",
     "source_commit": "6d43fb980f9fee3c892a914eda09951f772ad10d",
     "task_count": 100,
-    "materialized_artifact": "benchmarks/programming/exp001_v1/tasks.jsonl"
+    "materialized_artifact": "benchmarks/programming/exp001_v1/tasks.jsonl",
+    "materialized_tasks_sha256": "da754cd04bf2bdb19d36dd5161bc29e98fb4c5925eba5bbf156f67a27f0b7250"
   },
   "external_freeze_status": {
     "benchmark": "frozen_manifest_and_materialized_artifact",
@@ -88,5 +209,5 @@
     "real_execution": false
   },
   "real_execution": false,
-  "status": "IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED"
+  "status": "NOT_READY_REAL_SMOKE_OR_CREDENTIALS"
 }

@@ -38,7 +38,7 @@ class OpenAIAdapter:
             ],
             "temperature": temperature,
             "top_p": top_p,
-            "max_tokens": max_tokens,
+            "max_completion_tokens": max_tokens,
             "seed": seed,
         }
         if reasoning_effort is not None:

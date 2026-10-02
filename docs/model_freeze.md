@@ -11,7 +11,7 @@ The experiment uses only OpenAI Chat Completions and freezes exact model identif
 | C | `gpt-5.4-mini-2026-03-17` | tertiary solver / verifier / synthesizer | $0.00075 | $0.0045 |
 | D | `gpt-5.2-2025-12-11` | synthesizer | $0.00175 | $0.014 |
 
-All roles use: temperature 0, top_p 1, reasoning_effort low, service_tier default, max 512 completion tokens, max 8192 input tokens, and the experiment seed.
+All roles use: temperature 0, top_p 1, reasoning_effort none, service_tier default, max 512 completion tokens, max 8192 input tokens, and the experiment seed.
 
 Pricing is stored as USD per 1,000 tokens. The recorded pricing verification date is 2026-10-02; it is the date on which the provider page was checked for this freeze, not a claim about the historical date on which the provider introduced that price.
 

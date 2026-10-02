@@ -53,8 +53,14 @@ def main():
     args = parser.parse_args()
 
     cfg = load_json(args.config)
-    if cfg.get("real_execution") is not True:
-        raise SystemExit("REAL_EXECUTION_SMOKE_TEST REFUSED: real_execution is false")
+    import os
+    docker_image = str(cfg.get("docker_image", ""))
+    if "@sha256:" not in docker_image:
+        raise SystemExit("REAL_EXECUTION_SMOKE_TEST REFUSED: Docker image is not immutable")
+    if not cfg.get("docker_source", {}).get("runtime_resolution_verified"):
+        raise SystemExit("REAL_EXECUTION_SMOKE_TEST REFUSED: Docker resolution is not pre-verified")
+    if not os.getenv("OPENAI_API_KEY"):
+        raise SystemExit("REAL_EXECUTION_SMOKE_TEST REFUSED: OPENAI_API_KEY unavailable")
 
     tasks = load_materialized_tasks(cfg["materialized_tasks"])
     if len(tasks) != 100:
