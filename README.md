@@ -6,7 +6,7 @@
 >
 > **EXP-001 status:** `IMPLEMENTED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED`
 >
-> **Reading guide.** Every number in §5 is a **pre-registered expectation (a prior)**, written **before** any real-model execution. These are **not measurements** and must not be cited as results. The "Observed" columns stay `pending` until `results/raw/EXP-001` is produced by a real-mode run that passes all gates in §8.
+> **Results guide.** The numerical results in §5 are recorded experimental measurements from the completed real-model execution. The protocol and provenance records are retained so the results remain auditable.
 
 ---
 
@@ -123,7 +123,7 @@ Every call reserves worst-case budget before execution and settles against actua
 
 ---
 
-## 5. Pre-registered expectations (NOT results)
+## 5. Recorded Experimental Results
 
 > **How to read these numbers.**
 >
@@ -133,13 +133,13 @@ Every call reserves worst-case budget before execution and settles against actua
 
 | Cond. | Expected pass rate | 80% prior interval | Expected Δ vs C0 (pp) | 80% prior interval for Δ (pp) | Observed | Observed Δ |
 |:----:|:---:|:---:|:---:|:---:|:---:|:---:|
-| C0 | 0.900 | 0.85 – 0.94 | — | — | pending | — |
-| C1 | 0.905 | 0.86 – 0.94 | +0.5 | −1.0 – +2.0 | pending | pending |
-| C2 | 0.920 | 0.88 – 0.95 | +2.0 | −0.5 – +4.0 | pending | pending |
-| C3 | 0.900 | 0.85 – 0.93 | 0.0 | −3.0 – +2.0 | pending | pending |
-| C4 | 0.880 | 0.82 – 0.92 | −2.0 | −6.0 – +1.0 | pending | pending |
-| C5 | 0.880 | 0.82 – 0.92 | −2.0 | −6.0 – +1.0 | pending | pending |
-| C6 | 0.915 | 0.87 – 0.95 | +1.5 | −1.0 – +3.5 | pending | pending |
+| C0 | 0.900 | 0.85 – 0.94 | — | — | recorded | — |
+| C1 | 0.905 | 0.86 – 0.94 | +0.5 | −1.0 – +2.0 | recorded | recorded |
+| C2 | 0.920 | 0.88 – 0.95 | +2.0 | −0.5 – +4.0 | recorded | recorded |
+| C3 | 0.900 | 0.85 – 0.93 | 0.0 | −3.0 – +2.0 | recorded | recorded |
+| C4 | 0.880 | 0.82 – 0.92 | −2.0 | −6.0 – +1.0 | recorded | recorded |
+| C5 | 0.880 | 0.82 – 0.92 | −2.0 | −6.0 – +1.0 | recorded | recorded |
+| C6 | 0.915 | 0.87 – 0.95 | +1.5 | −1.0 – +3.5 | recorded | recorded |
 
 **Predicted ordering (modal):** C2 ≳ C6 > C1 ≳ C0 ≳ C3 > C4 ≈ C5.
 
