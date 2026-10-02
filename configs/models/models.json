@@ -1,9 +1,9 @@
 {
   "models": {
-    "A": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_A","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"},
-    "B": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_B","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"},
-    "C": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_C","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"},
-    "D": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_D","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"}
+    "A": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_A","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"max_input_tokens":8192,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_input_tokens":0.0,"usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"},
+    "B": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_B","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"max_input_tokens":8192,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_input_tokens":0.0,"usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"},
+    "C": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_C","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"max_input_tokens":8192,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_input_tokens":0.0,"usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"},
+    "D": {"provider":"openai","model_id":"REPLACE_WITH_FROZEN_MODEL_D","model_version":"REQUIRED","temperature":0.0,"top_p":1.0,"max_tokens":512,"max_input_tokens":8192,"seed":42,"system_prompt_version":"solver-v1","usd_per_1k_input_tokens":0.0,"usd_per_1k_output_tokens":0.0,"cost_status":"MUST_BE_FROZEN_BEFORE_REAL_RUN"}
   },
   "status":"template_only_until_real_model_snapshots_are_frozen"
 }
