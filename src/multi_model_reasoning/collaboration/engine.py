@@ -5,10 +5,12 @@ class CollaborationEngine:
     """Explicit protocol executor; round visibility is encoded in prompts."""
     def __init__(self,adapters,budget): self.adapters=adapters; self.budget=budget
     def _generate(self,role,prompt,system_prompt,generation_kwargs):
-        max_tokens=generation_kwargs["max_tokens"]
+        role_cfg=generation_kwargs.get("model_configs",{}).get(role,generation_kwargs)
+        max_tokens=role_cfg["max_tokens"]
         self.budget.reserve_call(requested_output_tokens=max_tokens,worst_case_seconds=generation_kwargs.get("worst_case_seconds",0.0),estimated_cost_usd=generation_kwargs.get("worst_case_cost_usd",0.0))
         try:
-            res=self.adapters[role].generate(prompt=prompt,system_prompt=system_prompt,**{k:v for k,v in generation_kwargs.items() if k not in {"worst_case_seconds","worst_case_cost_usd"}})
+            call_kwargs={k:v for k,v in role_cfg.items() if k in {"model_id","temperature","top_p","max_tokens","seed"}}
+            res=self.adapters[role].generate(prompt=prompt,system_prompt=system_prompt,**call_kwargs)
             self.budget.settle_call(actual_output_tokens=res.output_tokens,actual_wall_seconds=res.latency_seconds,reserved_output_tokens=max_tokens,reserved_wall_seconds=generation_kwargs.get("worst_case_seconds",0.0),reserved_cost_usd=generation_kwargs.get("worst_case_cost_usd",0.0))
             return res
         except Exception:
