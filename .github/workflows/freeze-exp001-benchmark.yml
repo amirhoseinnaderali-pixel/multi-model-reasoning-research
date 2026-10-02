@@ -1,0 +1,43 @@
+name: freeze-exp001-benchmark
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "benchmarks/manifests/exp001_v1.json"
+      - "scripts/materialize_exp001_benchmark.py"
+      - "scripts/validate_benchmark.py"
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Materialize pinned benchmark
+        run: |
+          python scripts/materialize_exp001_benchmark.py             --manifest benchmarks/manifests/exp001_v1.json             --output benchmarks/programming/exp001_v1/tasks.jsonl
+
+      - name: Verify frozen benchmark
+        run: python scripts/validate_benchmark.py
+
+      - name: Commit materialized artifact
+        run: |
+          if git diff --quiet -- benchmarks/programming/exp001_v1/tasks.jsonl; then
+            echo "Materialized benchmark already committed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add benchmarks/programming/exp001_v1/tasks.jsonl
+          git commit -m "chore: materialize frozen EXP-001 benchmark"
+          git push origin HEAD:main
