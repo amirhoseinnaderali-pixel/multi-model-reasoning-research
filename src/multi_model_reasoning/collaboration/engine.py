@@ -1,5 +1,4 @@
 from .protocols import StrategySpec
-from ..aggregation.voting import deterministic_majority
 
 class CollaborationEngine:
     """Execute an explicit collaboration protocol under a hard inference budget."""
@@ -89,6 +88,14 @@ class CollaborationEngine:
     def run(self, *, spec: StrategySpec, problem, system_prompt, generation_kwargs, verifier=None):
         outputs = []
         self.last_trace = []
+
+        if spec.condition == "C5":
+            required = {"solver", "critic", "verifier", "synthesizer"}
+            missing = required - set(generation_kwargs.get("role_prompts", {}))
+            if missing:
+                raise RuntimeError(f"C5 requires versioned prompts for semantic roles: {sorted(missing)}")
+            if any(role not in generation_kwargs.get("model_configs", {}) for role in ("A", "B", "C", "D")):
+                raise RuntimeError("C5 requires explicit model configuration for A/B/C/D")
 
         if spec.condition in {"C0", "C1", "C2"}:
             roles = (
