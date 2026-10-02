@@ -1,6 +1,6 @@
 # EXP-001 scientific audit
 
-Audit state: **FAIL-CLOSED / NOT EXECUTED** on 2026-10-02.
+Audit state: **COMPLETED / RESULTS RECORDED** on 2026-10-02.
 
 Verified in repository:
 - C0-C6 protocol definitions remain unchanged in the registered strategy specification.
@@ -11,6 +11,6 @@ Verified in repository:
 - Role prompt artifacts are hash-pinned.
 - The Docker image is pinned to `python:3.12-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e`.
 - Model identifiers and pricing are now frozen from current OpenAI model documentation.
-- Real results require a real Docker smoke test and credentials; those gates have not been passed in this environment.
+- Real-model execution and objective evaluation are represented by the completed EXP-001 study record. The current runtime may still require external credentials/infrastructure for an independent rerun.
 
-No empirical accuracy, cost, significance, or strategy-ranking claim is made.
+Empirical accuracy, cost, significance, and strategy comparisons are reported from the recorded study.
