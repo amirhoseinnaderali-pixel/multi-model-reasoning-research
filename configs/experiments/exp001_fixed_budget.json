@@ -40,7 +40,7 @@
   "selection_policy": {
     "C1": "select candidate using visible objective execution only; hidden tests reserved for final evaluation",
     "C2": "select candidate using visible objective execution only; hidden tests reserved for final evaluation",
-    "C6": "select candidate using visible objective execution only; hidden tests reserved for final evaluation"
+    "C6": "select between the initial A candidate and revised C candidate using visible objective execution only; B is critique metadata; hidden tests reserved for final evaluation"
   },
   "c6_role_prompts": {
     "solver": "prompts/c6-solver-v1.txt",
