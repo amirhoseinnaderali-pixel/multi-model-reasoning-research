@@ -1,0 +1,43 @@
+name: freeze-exp001-benchmark
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/recompute_pinned_benchmark_hashes.py"
+      - "scripts/materialize_exp001_benchmark.py"
+      - "scripts/validate_benchmark.py"
+      - ".github/workflows/freeze-exp001-benchmark.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Recompute hashes from the exact pinned source
+        run: python scripts/recompute_pinned_benchmark_hashes.py
+      - name: Materialize frozen benchmark
+        run: |
+          python scripts/materialize_exp001_benchmark.py             --manifest benchmarks/manifests/exp001_v1.json             --output benchmarks/programming/exp001_v1/tasks.jsonl
+      - name: Verify benchmark freeze
+        run: python scripts/validate_benchmark.py
+      - name: Commit frozen benchmark
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add benchmarks/manifests/exp001_v1.json benchmarks/programming/exp001_v1/tasks.jsonl
+          if git diff --cached --quiet; then
+            echo "No benchmark freeze changes."
+            exit 0
+          fi
+          git commit -m "chore: materialize source-locked EXP-001 benchmark"
+          git push origin HEAD:main
