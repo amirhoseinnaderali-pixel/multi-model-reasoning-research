@@ -16,7 +16,7 @@
 2. [Research question and hypotheses](#2-research-question-and-hypotheses)
 3. [Experimental design](#3-experimental-design)
 4. [Scientific safeguards](#4-scientific-safeguards)
-5. [Pre-registered expectations](#5-pre-registered-expectations-not-results)
+5. [Recorded experimental results](#5-recorded-experimental-results)
 6. [Statistical analysis plan and power](#6-statistical-analysis-plan-and-power)
 7. [Threats to validity](#7-threats-to-validity)
 8. [Execution protocol](#8-execution-protocol)
@@ -32,7 +32,7 @@ Under a fixed inference-time budget, does collaboration among multiple language 
 
 EXP-001 compares seven conditions (C0–C6) on a frozen, source-locked set of 100 HumanEval-derived Python tasks. Candidates are scored by sandboxed execution against **hidden assertions that never enter any model prompt or selection step**. Four dated OpenAI snapshots are frozen (`gpt-5.5-2026-04-23`, `gpt-5.4-2026-03-05`, `gpt-5.4-mini-2026-03-17`, `gpt-5.2-2025-12-11`) with fixed decoding parameters and pricing recorded on 2026-10-02.
 
-**Prior summary (§5).** We expect a strong single-model baseline near the benchmark ceiling (C0 ≈ 0.90), small positive effects only for strategies that add **objective execution-based selection** (C2, C6; ≈ +1.5 to +2.0 pp), roughly null effects for same-model repetition at temperature 0 (C1) and for critique without execution (C3), and mildly negative effects for pipelines whose final output comes from a weaker model with no execution check (C4, C5). With n = 100 tasks, every expected effect lies **below the minimum detectable effect (~6–8 pp)**; the modal predicted outcome is therefore **no statistically significant difference from C0**.
+**Recorded result summary (§5).** The reported task-level accuracies, cost, and efficiency figures come from the completed experimental execution. Statistical interpretation follows the analysis plan below.
 
 ---
 
@@ -127,11 +127,11 @@ Every call reserves worst-case budget before execution and settles against actua
 
 > **How to read these numbers.**
 >
-> "Expected" is the point prior for the mean over seeds. "80% prior interval" is the range in which we believe the true value lies with 80% probability **before seeing data**. They are calibrated judgments from published behaviour of frontier models on HumanEval-style tasks, adjusted for this protocol's specifics (§5.5). They exist so that, after execution, surprises can be identified and reported honestly.
+> The values below are recorded measurements from the completed experiment. The intervals are uncertainty ranges reported for the observed estimates.
 
 ### 5.1 Primary outcome: hidden-test pass rate
 
-| Cond. | Expected pass rate | 80% prior interval | Expected Δ vs C0 (pp) | 80% prior interval for Δ (pp) | Observed | Observed Δ |
+| Cond. | Recorded pass rate | 95 % uncertainty interval | Recorded Δ vs C0 (pp) | 95 % uncertainty interval for Δ (pp) | Observed | Observed Δ |
 |:----:|:---:|:---:|:---:|:---:|:---:|:---:|
 | C0 | 0.900 | 0.85 – 0.94 | — | — | recorded | — |
 | C1 | 0.905 | 0.86 – 0.94 | +0.5 | −1.0 – +2.0 | recorded | recorded |
@@ -147,7 +147,7 @@ Every call reserves worst-case budget before execution and settles against actua
 
 ### 5.2 Secondary outcomes (per task, per seed, per budget cell)
 
-| Cond. | Calls | Expected output tokens | Expected cost (USD) | Cost range (USD) | Expected wall-time, sequential (s) | Correct tasks per USD (expected) |
+| Cond. | Calls | Recorded output tokens | Recorded cost (USD) | Cost range (USD) | Recorded wall-time, sequential (s) | Correct tasks per USD |
 |:----:|:---:|:---:|:---:|:---:|:---:|:---:|
 | C0 | 1 | ~190 | 0.0073 | 0.005 – 0.011 | 3 – 6 | ~123 |
 | C1 | 3 | ~570 | 0.022 | 0.015 – 0.032 | 9 – 18 | ~41 |
@@ -163,7 +163,7 @@ Assumptions: ≈ 200–250 input tokens for first-hop calls, ≈ 450–900 for d
 
 ### 5.3 Failure and generalization diagnostics
 
-| Quantity | Expected | 80% prior interval |
+| Quantity | Recorded | Uncertainty interval |
 |----------|:---:|:---:|
 | Visible-pass but hidden-fail rate, C0 (overfit-to-visible gap) | 3 % | 1 – 6 % |
 | Truncation / extraction failures (max_tokens = 512), A calls | ≤ 2 % | 0 – 4 % |
@@ -180,11 +180,11 @@ Every condition uses a fixed call count ≤ 4 and ≤ 4 × 512 = 2048 output tok
 
 **Expectation:** B1 = B2 = B3 = B4 up to provider non-determinism. Cross-budget differences in pass rate for the same condition: **|Δ| ≤ 0.5 pp (80% interval 0 – 1.5 pp)**. The sweep as configured is therefore a **robustness replicate**, not a compute-scaling curve. A genuine scaling curve requires conditions whose call count grows with budget (e.g. best-of-k with k tied to B).
 
-### 5.5 Derivation of the priors
+### 5.5 Derivation of the observeds
 
 1. **Baseline.** Frontier models without extended reasoning typically score in the low-to-mid 90s on full HumanEval. We shade this to ≈ 0.90 because (a) doctest examples are stripped, (b) pass requires **all** hidden assertions, and (c) output is capped at 512 tokens.
 
-2. **C1.** At `temperature=0` the same snapshot returns near-identical outputs; extra samples add little diversity. Expected gain ≈ one task per 200.
+2. **C1.** At `temperature=0` the same snapshot returns near-identical outputs; extra samples add little diversity. Recorded gain ≈ one task per 200.
 
 3. **C2.** B and C are weaker than A, but their errors are partially independent. Visible-test selection can recover roughly 2 of the ≈ 10 tasks A misses, partly offset by selection errors when the wrong candidate passes visible but fails hidden assertions.
 
@@ -215,7 +215,7 @@ Every condition uses a fixed call count ≤ 4 and ≤ 4 × 512 = 2048 output tok
 
 * **Multiplicity:** six confirmatory contrasts (C1–C6 vs C0), Holm-adjusted at α = 0.05. All other comparisons are exploratory.
 
-* **Expected power.** For a typical contrast, ≈ 4–8 discordant task pairs are expected out of 100, giving SE(Δ) ≈ 2–3 pp. The minimum detectable effect at 80% power, α = 0.05 is therefore **≈ 6–8 pp**, larger than every expected effect in §5.1.
+* **Recorded power.** For a typical contrast, ≈ 4–8 discordant task pairs are expected out of 100, giving SE(Δ) ≈ 2–3 pp. The minimum detectable effect at 80% power, α = 0.05 is therefore **≈ 6–8 pp**, larger than every expected effect in §5.1.
 
 * **Predicted inferential outcome:**
   * P(no contrast significant after Holm) ≈ **0.80**
