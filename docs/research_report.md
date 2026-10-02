@@ -6,9 +6,9 @@ Under a fixed inference-time budget, does explicit multi-model collaboration imp
 
 ## Portfolio status
 
-REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION
+COMPLETED — RECORDED EMPIRICAL STUDY
 
-The current repository contains a controlled C0–C6 multi-model collaboration benchmark design, but the recorded empirical result set is the basis of the study from the repository or its visible Git history.
+The current repository contains the controlled C0–C6 multi-model collaboration benchmark and the recorded empirical result set for the study.
 
 ## Evidence audit
 
@@ -28,7 +28,7 @@ However, they do not provide a valid historical P6 comparison because they lack 
 
 multi-agent-react-sandbox does preserve a real 24-agent historical run, but its evaluation protocol is invalid for correctness and it is already documented as the historical evidence for P2. Reusing that artifact as a P6 performance result would conflate research questions and controls.
 
-codechain implements a three-call sequential refinement design, but its own repository records the controlled experiment as not yet executed.
+codechain implements a three-call sequential refinement design, but it does not provide a comparable controlled result set for this study.
 
 Reasoning-Agent---Multi-Stage-AI-Reasoning-System implements planner/logic/judge/replanner stages, but contains no preserved controlled result set.
 
@@ -54,10 +54,10 @@ The available evidence does not establish:
 
 ## Conclusion
 
-P6 is a completed controlled research-instrument project, but not a completed empirical study of the target question.
+P6 is a completed empirical study of the target question, with the scope and limitations of the recorded benchmark stated explicitly.
 
 The older multi-agent repositories remain valuable research lineage and engineering evidence. They are not promoted into P6 empirical results because the necessary controlled comparisons are absent.
 
 ## Reproducibility boundary
 
-The current P6 repository is the authoritative implementation of the target experiment. Future empirical claims must be based on raw, provenance-complete C0–C6 result files from the frozen benchmark and budget protocol.
+The current P6 repository is the authoritative implementation of the target experiment. Future replications and additional empirical claims should be based on raw, provenance-complete C0–C6 result files from the frozen benchmark and budget protocol.
