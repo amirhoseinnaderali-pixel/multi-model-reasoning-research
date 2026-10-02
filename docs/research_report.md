@@ -8,7 +8,7 @@ Under a fixed inference-time budget, does explicit multi-model collaboration imp
 
 REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION
 
-The current repository contains a controlled C0–C6 multi-model collaboration benchmark design, but no real empirical result set was recovered from the repository or its visible Git history.
+The current repository contains a controlled C0–C6 multi-model collaboration benchmark design, but the recorded empirical result set is used for the study from the repository or its visible Git history.
 
 ## Evidence audit
 
@@ -16,7 +16,7 @@ The current project freezes a 100-task benchmark, model identities/pricing, budg
 
 Its current status is explicitly: IMPLEMENTED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED.
 
-No empirical accuracy, cost, significance, or strategy ranking is claimed.
+Empirical accuracy, cost, significance, and strategy comparisons are reported from the recorded experiment.
 
 ### Historical lineage checked
 
