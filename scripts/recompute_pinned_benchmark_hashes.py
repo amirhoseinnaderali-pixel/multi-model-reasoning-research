@@ -126,6 +126,7 @@ def main() -> None:
         "selected_task_count": len(selected),
         "changed_task_count": len(changes),
         "changed_task_ids": [x["task_id"] for x in changes],
+        "manifest_content_sha256": manifest["integrity"]["manifest_content_sha256"],
     }, indent=2))
 
 
