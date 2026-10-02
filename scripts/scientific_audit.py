@@ -20,22 +20,59 @@ def main():
         errors.append("solver prompt missing")
 
     role_prompts=cfg.get("role_prompts",{})
-    required={"solver","critic","verifier","synthesizer"}
-    if required-set(role_prompts):
+    required_c5={"solver","critic","verifier","synthesizer"}
+    if required_c5-set(role_prompts):
         errors.append("C5 role prompt mapping incomplete")
-    for role in required & set(role_prompts):
+    for role in required_c5 & set(role_prompts):
         path=Path(role_prompts[role])
         if not path.exists():
             errors.append(f"C5 role prompt missing: {role}")
         elif not path.read_text().splitlines() or not path.read_text().splitlines()[0].startswith("VERSION:"):
             errors.append(f"C5 role prompt missing VERSION header: {role}")
 
-    if not SPECS["C1"].uses_verifier or SPECS["C1"].aggregation!="visible_objective_selection":
-        errors.append("C1 does not use visible objective candidate selection")
-    if not SPECS["C2"].uses_verifier or SPECS["C2"].aggregation!="visible_objective_selection":
-        errors.append("C2 does not use visible objective candidate selection")
-    if SPECS["C5"].semantic_roles!=("solver","critic","verifier","synthesizer"):
-        errors.append("C5 semantic role sequence is not explicit")
+    c6=SPECS["C6"]
+    c2=SPECS["C2"]
+    required_c6={"solver","critic","synthesizer"}
+    c6_prompt_paths=cfg.get("c6_role_prompts",{})
+    if c6.semantic_roles != ("solver","critic","synthesizer"):
+        errors.append("C6 semantic roles are not solver/critic/synthesizer")
+    if c6.rounds != 3:
+        errors.append("C6 must have exactly three collaborative model rounds")
+    if not c6.uses_verifier:
+        errors.append("C6 must use independent objective verification")
+    if c6.aggregation != "sequential_refinement_visible_selection":
+        errors.append("C6 must use sequential refinement plus visible objective selection")
+    if required_c6-set(c6_prompt_paths):
+        errors.append("C6 role prompt mapping incomplete")
+    for role in required_c6 & set(c6_prompt_paths):
+        path=Path(c6_prompt_paths[role])
+        if not path.exists():
+            errors.append(f"C6 role prompt missing: {role}")
+        else:
+            lines=path.read_text().splitlines()
+            if not lines or not lines[0].startswith("VERSION:"):
+                errors.append(f"C6 role prompt missing VERSION header: {role}")
+            if not lines or not lines[0].lower().startswith("version: c6-"):
+                errors.append(f"C6 role prompt is not explicitly C6-scoped: {role}")
+
+    if c6.semantic_roles == c2.semantic_roles and c6.description == c2.description:
+        errors.append("C6 is structurally indistinguishable from C2")
+    if c6.model_pool != ("A","B","C"):
+        errors.append("C6 model pool must be A/B/C")
+    if c2.model_pool != ("A","B","C"):
+        errors.append("C2 model pool must remain A/B/C")
+    if c2.semantic_roles != ("solver","solver","solver"):
+        errors.append("C2 must remain independent solver generation")
+    if c6.calls_per_task != 3:
+        errors.append("C6 must make exactly three model calls")
+    if c6.name != "collaborative_refinement_verified":
+        errors.append("C6 strategy name changed unexpectedly")
+
+    selection=cfg.get("selection_policy",{})
+    if "C6" not in selection:
+        errors.append("C6 visible-selection policy missing")
+    elif "visible objective" not in selection["C6"].lower() or "hidden tests reserved" not in selection["C6"].lower():
+        errors.append("C6 selection policy does not explicitly reserve hidden tests")
 
     m=json.loads(Path(cfg["benchmark_manifest"]).read_text())
     if m.get("status","").startswith("provenance_manifest_only"):
