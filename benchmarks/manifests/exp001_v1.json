@@ -46,9 +46,10 @@
   },
   "evaluation_split_policy": {
     "type": "deterministic_assertion_split",
-    "visible_rule": "first ceil(n/2) top-level assert statements",
-    "hidden_rule": "remaining top-level assert statements",
+    "visible_rule": "first ceil(n/2) executable ast.Assert nodes in static source order; nested assertions retain their original control flow",
+    "hidden_rule": "remaining executable ast.Assert nodes in static source order",
     "minimum_assertions_per_task": 2,
+    "assertion_definition": "all ast.Assert nodes contained in check(candidate), traversed in deterministic source order",
     "visibility_rule": "generation/selection strategies may access visible feedback only where explicitly configured; hidden assertions never enter strategy context",
     "no_objective_selection_on_hidden": true,
     "hidden_test_roles": [
