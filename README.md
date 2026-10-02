@@ -1,644 +1,299 @@
 # Multi-Model Reasoning Research
 
-### Portfolio status
+**Fixed-Budget Multi-Model Collaboration under Objective Execution-Based Evaluation**
 
-**REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION**
-
-The C0–C6 instrument is implemented and scientifically hardened, but no controlled real-model result set matching the P6 research question has been recovered. Earlier multi-agent repositories are treated as research lineage, not as P6 empirical results.
-
-Controlled research infrastructure for studying **multi-model / collective reasoning** in large language models.
-
----
-
-# EXP-001 — Fixed-Budget Multi-Model Collaboration Benchmark
-
-## Research question
-
-> **Under a fixed inference-time compute budget, does collaboration between multiple language models improve objective task correctness compared with a single-model baseline and simpler multi-sample strategies?**
-
-The primary outcome is **task-level hidden-test correctness** on a frozen 100-task programming benchmark.
-
-Secondary outcomes are designed to capture the cost of obtaining that correctness:
-
-- model-call usage;
-- output-token consumption;
-- latency / wall time;
-- estimated monetary cost;
-- model and evaluator failures;
-- candidate-selection behavior.
-
----
-
-## Conditions
-
-| Condition | Strategy | Core mechanism |
-|:--|:--|:--|
-| **C0** | Single-model baseline | One candidate from the primary solver |
-| **C1** | Independent multi-sample | Three same-model candidates + visible-test selection |
-| **C2** | Independent multi-model | Three heterogeneous-model candidates + visible-test selection |
-| **C3** | Debate / critique | Two solver candidates plus a critic |
-| **C4** | Sequential collaborative refinement | Information passed through a three-stage pipeline |
-| **C5** | Solver / critic / verifier / synthesizer | Explicit four-role collaboration |
-| **C6** | Sequential collaboration + objective verification | Solver → critic/refinement → synthesizer, then visible-test choice between A and C |
-
-C2 and C6 are deliberately different. C2 keeps the candidates independent; C6 introduces explicit A → B → C information flow and then performs objective selection between executable candidates.
-
----
-
-# ⚠️ Expected Projection — Pre-Execution
-
-> **EXPECTED ONLY — NOT AN EMPIRICAL RESULT**
+> **Portfolio status:** `REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION`
 >
-> Every number in this section is a **prior estimate made before the real EXP-001 run**. These projections exist to make the study falsifiable and to provide a reference for comparison with the eventual measured result.
+> **EXP-001 status:** `IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED`
 >
-> **They are not measured accuracies, confidence intervals, statistical results, or rankings.**
-
-The repository remains **NOT EXECUTED**. No empirical performance claim is made from the values below.
+> **Reading guide.** Every number in §5 is a **pre-registered expectation (a prior)**, written **before** any real-model execution. These are **not measurements** and must not be cited as results. The "Observed" columns stay `pending` until `results/raw/EXP-001` is produced by a real-mode run that passes all gates in §8.
 
 ---
 
-## 1. Projected Hidden-Test Correctness
+## Table of contents
 
-The current prior uses an estimated **C0 baseline of 78%**.
-
-| Condition | Strategy | Expected center | Approx. 80% range |
-|:--|:--|--:|:--:|
-| **C0** | Single-model baseline | **78%** | **74–82%** |
-| **C1** | Multi-sample + execution-based selection | **83%** | **79–87%** |
-| **C2** | Multi-model + execution-based selection | **84%** | **79–88%** |
-| **C3** | Debate / critique | **79%** | **74–84%** |
-| **C4** | Sequential refinement | **80%** | **75–85%** |
-| **C5** | Four-role collaboration | **79%** | **72–85%** |
-| **C6** | A → B → C + execution-based choice of A/C | **83%** | **79–87%** |
-
-### Projected central picture
-
-```text
-Hidden-Test Correctness
-
-C0   78%
-C1   83%   ●
-C2   84%   ●
-C3   79%   ●
-C4   80%   ●
-C5   79%   ●
-C6   83%   ●
-```
-
-The projection therefore does **not** assume that additional collaboration automatically produces a monotonic accuracy increase.
-
-The central hypothesis is narrower:
-
-> **Execution-based candidate selection is expected to be more reliably useful than interaction alone.**
-
-A useful qualitative grouping is:
-
-```text
-Selection by execution
-C1 ≈ C2 ≈ C6
-        ≥
-C4 ≳ C3 ≈ C5 ≈ C0
-```
-
-This is a **mechanistic hypothesis**, not an empirical ranking.
+1. [Abstract](#1-abstract)
+2. [Research question and hypotheses](#2-research-question-and-hypotheses)
+3. [Experimental design](#3-experimental-design)
+4. [Scientific safeguards](#4-scientific-safeguards)
+5. [Pre-registered expectations](#5-pre-registered-expectations-not-results)
+6. [Statistical analysis plan and power](#6-statistical-analysis-plan-and-power)
+7. [Threats to validity](#7-threats-to-validity)
+8. [Execution protocol](#8-execution-protocol)
+9. [Repository layout](#9-repository-layout)
+10. [Research lineage](#10-research-lineage)
+11. [Reporting rules](#11-reporting-rules)
 
 ---
 
-## 2. Prior Probabilities for Specific Claims
+## 1. Abstract
 
-| Claim | Prior probability |
-|:--|--:|
-| **C1 > C0** | **85%** |
-| **C1, C2, and C6 all exceed C0** | **65%** |
-| **The best condition is one of C1, C2, or C6** | **70%** |
-| **C3 is at most 2 percentage points above C0** | **65%** |
-| **C5 is below C0** | **25%** |
-| **C2 vs. C1 is statistically significant** | **10%** |
-| **C5 is the best condition** | **8%** |
-| **The exact proposed ordering holds** | **<2%** |
-| **Verification matters more than collaboration** | **65%** |
+Under a fixed inference-time budget, does collaboration among multiple language models improve objective correctness over a single-model baseline, and which collaboration strategy gives the best correctness–cost trade-off?
 
-These priors are intentionally uncertain. A result that contradicts them is allowed and can be scientifically informative.
+EXP-001 compares seven conditions (C0–C6) on a frozen, source-locked set of 100 HumanEval-derived Python tasks. Candidates are scored by sandboxed execution against **hidden assertions that never enter any model prompt or selection step**. Four dated OpenAI snapshots are frozen (`gpt-5.5-2026-04-23`, `gpt-5.4-2026-03-05`, `gpt-5.4-mini-2026-03-17`, `gpt-5.2-2025-12-11`) with fixed decoding parameters and pricing recorded on 2026-10-02.
+
+**Prior summary (§5).** We expect a strong single-model baseline near the benchmark ceiling (C0 ≈ 0.90), small positive effects only for strategies that add **objective execution-based selection** (C2, C6; ≈ +1.5 to +2.0 pp), roughly null effects for same-model repetition at temperature 0 (C1) and for critique without execution (C3), and mildly negative effects for pipelines whose final output comes from a weaker model with no execution check (C4, C5). With n = 100 tasks, every expected effect lies **below the minimum detectable effect (~6–8 pp)**; the modal predicted outcome is therefore **no statistically significant difference from C0**.
 
 ---
 
-# 3. Why the Projection Is Conservative
+## 2. Research question and hypotheses
 
-The projection intentionally avoids assuming that every additional model call contributes an independent improvement.
+**Primary question.** Under a fixed inference-time compute budget, does collaboration between multiple language models improve objective task correctness compared with a single-model baseline (C0)?
 
-The expected mechanism is:
+**Pre-registered hypotheses** (directional, tested two-sided):
 
-```text
-Objective verification
-        >
-Model diversity
-        >
-Critique / interaction
-        >
-Role specialization
-```
-
-This is a hypothesis about **marginal mechanism value**, not a statement that one condition must outperform another.
-
-The main uncertainty is the degree to which candidate errors are actually independent.
-
-If multiple candidates fail in the same way, adding more candidates creates little benefit.
-
-If candidate failures are complementary, objective selection has more useful alternatives to choose from.
+| ID | Hypothesis | Rationale |
+|----|-----------|-----------|
+| H1 | C2 > C0 | Independent diverse candidates plus execution-based selection recovers tasks where A fails visible tests but B or C passes. |
+| H2 | C6 > C0 | A→B→C revision, with A-vs-C chosen by visible tests, cannot regress on tasks where A already passes visible tests. |
+| H3 | C1 ≈ C0 | At temperature 0 with best-effort seeding, repeated same-model samples have very low diversity; selection has little to choose from. |
+| H4 | C3 ≈ C0 | Critique/revision without executable feedback has near-zero net effect (fix rate ≈ regression rate). |
+| H5 | C4, C5 < C0 | Final answer is produced by a weaker model (C: `gpt-5.4-mini`; D: `gpt-5.2`) with no objective selection step. |
+| H6 | C6 ≥ C4 | Same information flow as C4, plus a visible-test safety net against regression. |
+| H7 | Budget sweep B1–B4 is flat | All conditions need ≤ 4 calls and ≤ 2048 output tokens; B1 already admits every condition (§5.4). |
 
 ---
 
-# 4. Projected Candidate-Selection Mechanism
+## 3. Experimental design
 
-For C1, C2, and C6, the final candidate decision is grounded in **visible executable tests** rather than a language model's subjective preference.
+### 3.1 Conditions
 
-The expected conceptual chain is:
+| ID | Name | Calls/task | Model roles | Information flow | Final-answer rule |
+|----|------|:---:|-------------|------------------|-------------------|
+| C0 | Single model | 1 | A | none | identity |
+| C1 | Independent multi-sample | 3 | A, A, A | none (seed incremented) | visible-test selection |
+| C2 | Independent multi-model | 3 | A, B, C | none | visible-test selection |
+| C3 | Debate / critique | 3 | A (solve) → B (critic) → A (revise) | A→B→A | last output |
+| C4 | Sequential refinement | 3 | A → B → C | A→B→C | last output (C) |
+| C5 | Role-specialized | 4 | A (solver) → B (critic) → C (verifier) → D (synthesizer) | controlled per role | synthesizer output (D) |
+| C6 | Collaborative + objective verification | 3 | A (solver) → B (critic) → C (synthesizer) | A→B→C | visible-test selection between A-initial and C-revised |
 
-```text
-More candidate coverage
-        ↓
-Potentially less-correlated errors
-        ↓
-Higher probability that at least one candidate is valid
-        ↓
-Objective visible-test selection
-        ↓
-Higher hidden-test correctness
-```
+C2 and C6 are deliberately distinct: C2 has **no** candidate-to-candidate information flow; C6 introduces A→B→C flow and then selects only between executable candidates A and C. B's critique in C6 is metadata, never a candidate.
 
-The important distinction is that visible tests are used for **selection**, while hidden tests remain reserved for **final evaluation**.
+### 3.2 Frozen models (selection date 2026-10-02)
 
-The projection assumes that the visible tests contain enough useful signal to distinguish candidates without leaking hidden evaluation information.
+| Role | Model snapshot | Input $/1K | Output $/1K |
+|------|----------------|-----------:|------------:|
+| A | `gpt-5.5-2026-04-23` | 0.00500 | 0.0300 |
+| B | `gpt-5.4-2026-03-05` | 0.00250 | 0.0150 |
+| C | `gpt-5.4-mini-2026-03-17` | 0.00075 | 0.0045 |
+| D | `gpt-5.2-2025-12-11` | 0.00175 | 0.0140 |
 
----
+Shared decoding: `temperature=0`, `top_p=1`, `reasoning_effort=none`, `service_tier=default`, `max_tokens=512`, `max_input_tokens=8192`, seed ∈ {42, 43, 44}. Seed is best-effort in the provider API; `system_fingerprint` is recorded when exposed.
 
-# 5. Expected Diversity Effects
+### 3.3 Benchmark
 
-| Condition | Expected candidate diversity |
-|:--|:--|
-| **C0** | Minimal |
-| **C1** | Low to moderate |
-| **C2** | Moderate to high |
-| **C3** | Moderate |
-| **C4** | Moderate |
-| **C5** | High role / semantic diversity |
-| **C6** | Moderate candidate diversity + explicit information flow |
+* `humaneval-stratified-100-v1`, derived from `openai/human-eval` at commit `6d43fb98…`, exactly **100** tasks, hash-locked manifest and materialized artifact.
 
-The projected mechanism is:
+* Stratified by category (arrays/lists 26, strings 26, arithmetic 12, sorting 12, parsing 6, dynamic programming 4, general 3, recursion 3, graph 3, hash maps 3, greedy 1, searching 1).
 
-```text
-Candidate diversity
-        ↓
-Potentially lower error correlation
-        ↓
-More useful alternatives
-        ↓
-Higher chance of selecting a correct candidate
-```
+* Tasks with fewer than two top-level asserts are excluded.
 
-The projection does **not** assume unlimited gains from diversity. Saturation and correlated failures remain plausible.
+* Doctest examples are stripped from prompts (`strip_doctest_examples_v1`), which removes a common source of free specification hints.
 
----
+* **Deterministic assertion split:** first ⌈n/2⌉ assertions in source order are **visible** (usable for C1/C2/C6 selection); the remainder are **hidden** (final evaluation only). The median task has 5 assertions.
 
-# 6. Mechanistic Expectations by Condition
+### 3.4 Budgets
 
-## C1 — Independent Same-Model Sampling
+| Budget | max calls | max output tokens | max wall (s) | max est. cost (USD) |
+|--------|:---:|:---:|:---:|:---:|
+| B1 | 4 | 2048 | 120 | 1.00 |
+| B2 | 8 | 4096 | 240 | 2.00 |
+| B3 | 12 | 6144 | 360 | 3.00 |
+| B4 | 16 | 8192 | 480 | 4.00 |
 
-C1 is expected to benefit from repeated exploration of the same model's solution space.
+Every call reserves worst-case budget before execution and settles against actual usage; both reserved and actual quantities are logged.
 
-The main mechanism is:
+### 3.5 Run matrix
 
-> **More independent attempts + objective selection.**
-
-The prior expectation is about **+5 percentage points** over C0 at the central estimate.
-
-The projection does not assume that all three generations will be meaningfully different.
+7 conditions × 100 tasks × 3 seeds × 4 budgets = **8,400 task-level records**, comprising **24,000 model calls** (20 calls per task–seed–budget cell: 1+3+3+3+3+4+3).
 
 ---
 
-## C2 — Independent Multi-Model Sampling
+## 4. Scientific safeguards
 
-C2 adds model heterogeneity while keeping candidate generation independent.
-
-The expected benefit is therefore primarily associated with:
-
-```text
-Model diversity
-      ↓
-Potentially different failure modes
-      ↓
-More complementary candidates
-```
-
-The projected central estimate is **84%**, only about **1 pp above C1**.
-
-That small gap is deliberate: the prior does not assume that multi-model diversity automatically produces a large improvement.
-
-The probability that the C2–C1 gap is statistically significant is only **10%** under the stated prior.
+* Benchmark provenance is source-locked; manifest and task-file SHA-256 are pinned.
+* Hidden tests never enter generation, critique, refinement, synthesis, ranking, or candidate selection.
+* C1/C2/C6 selection is performed by **execution**, not LLM judgment.
+* C5 uses frozen role-specific prompts with explicit information visibility; all prompt hashes are pinned.
+* Sandbox: Docker with immutable image digest, `network=none`, `cap_drop=ALL`, `no_new_privileges`, read-only root, read-only candidate mount, 10 s timeout.
+* Model failures and evaluator failures are classified separately.
+* Mock outputs are marked `validation_only` and cannot enter scientific results.
+* Real mode **fails closed** if credentials, model freeze, benchmark material, Docker, or smoke verification is unavailable.
 
 ---
 
-## C3 — Debate / Critique
+## 5. Pre-registered expectations (NOT results)
 
-C3 introduces explicit critique without an external execution-based selector.
+> **How to read these numbers.**
+>
+> "Expected" is the point prior for the mean over seeds. "80% prior interval" is the range in which we believe the true value lies with 80% probability **before seeing data**. They are calibrated judgments from published behaviour of frontier models on HumanEval-style tasks, adjusted for this protocol's specifics (§5.5). They exist so that, after execution, surprises can be identified and reported honestly.
 
-The expected benefit is limited because models can critique one another while still sharing the same incorrect assumption.
+### 5.1 Primary outcome: hidden-test pass rate
 
-The projection therefore places C3 near the baseline:
+| Cond. | Expected pass rate | 80% prior interval | Expected Δ vs C0 (pp) | 80% prior interval for Δ (pp) | Observed | Observed Δ |
+|:----:|:---:|:---:|:---:|:---:|:---:|:---:|
+| C0 | 0.900 | 0.85 – 0.94 | — | — | pending | — |
+| C1 | 0.905 | 0.86 – 0.94 | +0.5 | −1.0 – +2.0 | pending | pending |
+| C2 | 0.920 | 0.88 – 0.95 | +2.0 | −0.5 – +4.0 | pending | pending |
+| C3 | 0.900 | 0.85 – 0.93 | 0.0 | −3.0 – +2.0 | pending | pending |
+| C4 | 0.880 | 0.82 – 0.92 | −2.0 | −6.0 – +1.0 | pending | pending |
+| C5 | 0.880 | 0.82 – 0.92 | −2.0 | −6.0 – +1.0 | pending | pending |
+| C6 | 0.915 | 0.87 – 0.95 | +1.5 | −1.0 – +3.5 | pending | pending |
 
-**79% central estimate, 74–84% plausible operating range.**
+**Predicted ordering (modal):** C2 ≳ C6 > C1 ≳ C0 ≳ C3 > C4 ≈ C5.
 
----
+**Ceiling note:** with C0 ≈ 0.90, the maximum possible improvement is ≈ 10 pp, and an oracle that picks any passing candidate among A, B, C is expected to reach only ≈ 0.94–0.95.
 
-## C4 — Sequential Collaborative Refinement
+### 5.2 Secondary outcomes (per task, per seed, per budget cell)
 
-C4 introduces explicit information flow between stages.
+| Cond. | Calls | Expected output tokens | Expected cost (USD) | Cost range (USD) | Expected wall-time, sequential (s) | Correct tasks per USD (expected) |
+|:----:|:---:|:---:|:---:|:---:|:---:|:---:|
+| C0 | 1 | ~190 | 0.0073 | 0.005 – 0.011 | 3 – 6 | ~123 |
+| C1 | 3 | ~570 | 0.022 | 0.015 – 0.032 | 9 – 18 | ~41 |
+| C2 | 3 | ~560 | 0.012 | 0.008 – 0.018 | 9 – 18 | ~77 |
+| C3 | 3 | ~520 | 0.020 | 0.013 – 0.029 | 9 – 18 | ~45 |
+| C4 | 3 | ~560 | 0.013 | 0.009 – 0.019 | 9 – 18 | ~68 |
+| C5 | 4 | ~700 | 0.016 | 0.011 – 0.024 | 12 – 24 | ~55 |
+| C6 | 3 | ~540 | 0.012 | 0.008 – 0.018 | 9 – 18 | ~76 |
 
-The expected mechanism is:
+Assumptions: ≈ 200–250 input tokens for first-hop calls, ≈ 450–900 for downstream hops; typical solver output 150–250 tokens (hard cap 512). Wall-time excludes sandbox execution (≈ 1–3 s per visible-test run for C1/C2/C6) and assumes ~3–6 s per call with `reasoning_effort=none`.
 
-```text
-Candidate
-   ↓
-Interpretation / critique
-   ↓
-Refinement
-   ↓
-Revised candidate
-```
+**Full matrix:** ≈ 24,000 calls, ≈ 4.6 M output tokens, **≈ $120 (80% interval $80 – $180)**. Because B1–B4 are expected to be non-binding (§5.4), the **unique** protocol work is ≈ ¼ of this (≈ $30).
 
-The expected gain comes from **information reuse**, not merely from spending more calls.
+### 5.3 Failure and generalization diagnostics
 
-The projection is intentionally modest:
+| Quantity | Expected | 80% prior interval |
+|----------|:---:|:---:|
+| Visible-pass but hidden-fail rate, C0 (overfit-to-visible gap) | 3 % | 1 – 6 % |
+| Truncation / extraction failures (max_tokens = 512), A calls | ≤ 2 % | 0 – 4 % |
+| Truncation / extraction failures, C5 (4-hop) | ≤ 4 % | 1 – 7 % |
+| Sandbox timeouts (10 s) | < 1 % | 0 – 2 % |
+| Evaluator (infrastructure) failures | 0 % required | any non-zero value triggers audit |
+| C6: tasks where selection picks C-revised over A-initial | 8 % | 3 – 15 % |
+| C6: tasks where the A→B→C chain turns a visible-failing A into a visible-passing C | 3 % | 1 – 6 % |
+| C4/C5: tasks where refinement **regresses** a correct A (net of fixes) | 2 – 4 % | 0 – 7 % |
 
-**80% central estimate.**
+### 5.4 Budget sweep (H7)
 
-A correct candidate can also be damaged by an incorrect refinement, so sequential collaboration is not assumed to be monotonic.
+Every condition uses a fixed call count ≤ 4 and ≤ 4 × 512 = 2048 output tokens, which equals B1's cap. Even an upper-bound worst-case cost reservation (full 8192 input tokens plus 512 output tokens on every call) for the largest condition (C5) is ≈ $0.11, far below B1's $1.00.
 
----
+**Expectation:** B1 = B2 = B3 = B4 up to provider non-determinism. Cross-budget differences in pass rate for the same condition: **|Δ| ≤ 0.5 pp (80% interval 0 – 1.5 pp)**. The sweep as configured is therefore a **robustness replicate**, not a compute-scaling curve. A genuine scaling curve requires conditions whose call count grows with budget (e.g. best-of-k with k tied to B).
 
-## C5 — Role Specialization
+### 5.5 Derivation of the priors
 
-C5 separates the protocol into:
+1. **Baseline.** Frontier models without extended reasoning typically score in the low-to-mid 90s on full HumanEval. We shade this to ≈ 0.90 because (a) doctest examples are stripped, (b) pass requires **all** hidden assertions, and (c) output is capped at 512 tokens.
 
-```text
-Solver
-   ↓
-Critic
-   ↓
-Verifier
-   ↓
-Synthesizer
-```
+2. **C1.** At `temperature=0` the same snapshot returns near-identical outputs; extra samples add little diversity. Expected gain ≈ one task per 200.
 
-The hypothesis is that specialization can expose complementary information.
+3. **C2.** B and C are weaker than A, but their errors are partially independent. Visible-test selection can recover roughly 2 of the ≈ 10 tasks A misses, partly offset by selection errors when the wrong candidate passes visible but fails hidden assertions.
 
-At the same time, C5 has the largest number of stages and the widest uncertainty band in the projection:
+4. **C3.** Without execution feedback, critique fixes and critique-induced regressions are roughly balanced.
 
-**79% central estimate, 72–85% range.**
+5. **C4/C5.** Final output is produced by the weakest-in-chain model with no execution gate. Each additional hop risks information loss or "over-editing" a correct solution.
 
-The prior probability that C5 is the best condition is only **8%**.
+6. **C6.** Same chain as C4, but A-vs-C visible selection bounds regression risk; a tie preference for the earlier candidate is expected to protect against spurious rewrites.
 
-This is intentional: role specialization is treated as a testable hypothesis, not as an assumed benefit.
+7. **Per-call token and cost figures** follow from the frozen price table and the prompt sizes in `prompts/` (≈ 320–470 characters per role prompt, ≈ 360 characters per task prompt on average).
 
----
+### 5.6 Update rules
 
-## C6 — Sequential Collaboration + Objective Verification
-
-C6 combines sequential information flow with an executable selection step:
-
-```text
-Solver A
-   ↓
-Critic / Refinement B
-   ↓
-Synthesizer C
-   ↓
-Visible-test evaluation
-   ↓
-Choose A or C
-```
-
-The final decision is therefore grounded in executable evidence.
-
-The projected central estimate is **83%**, with an approximate **79–87%** range.
-
-The main uncertainty is the **A/C tie-break case**: when both candidates pass visible tests, the selection policy can materially affect C6.
+* If observed C0 > 0.96 → ceiling effect; collaboration comparisons are uninformative on this benchmark. Report as such and do not extrapolate.
+* If observed C0 < 0.80 → investigate prompt/format failures (extraction, truncation) before interpreting any strategy effect.
+* If C1 gain exceeds +2 pp → temperature-0 sampling is more diverse than assumed; inspect `system_fingerprint` and seed handling.
+* If any budget level differs from another by > 1.5 pp on the same condition → treat as non-determinism, not budget effect, unless budget-exceeded failures are logged.
 
 ---
 
-# 7. Projected Error Decomposition
+## 6. Statistical analysis plan and power
 
-The benchmark is intended to distinguish several failure classes:
+* **Unit of analysis:** task (n = 100). Seeds and budgets are replicates of the **same** tasks, not independent samples. At `temperature=0`, seed-to-seed outputs are expected to be highly correlated.
 
-```text
-Generation Failure
-        │
-        ├── Incomplete / malformed candidate
-        │
-Reasoning Failure
-        │
-        ├── Algorithmic or logical error
-        │
-Coordination Failure
-        │
-        ├── Critique / refinement does not repair the defect
-        │
-Selection Failure
-        │
-        ├── Correct candidate generated but not selected
-        │
-Execution Failure
-        │
-        ├── Runtime / timeout / sandbox failure
-        │
-        ▼
-Final Incorrectness
-```
+* **Primary contrast:** paired difference of per-task hidden-pass indicators (condition − C0), after averaging over seeds and budgets within task.
 
-Unlike the projected accuracy numbers, no precise percentage distribution is frozen here as a scientific prior. The experiment is expected to **measure** the failure composition rather than manufacture an artificial decomposition in advance.
+* **Interval estimation:** paired bootstrap **resampling tasks** (clusters), 10,000 resamples, 95% percentile intervals. Exact McNemar tests for binary paired outcomes as a sensitivity check.
 
-The resulting analysis should distinguish at least:
+* **Multiplicity:** six confirmatory contrasts (C1–C6 vs C0), Holm-adjusted at α = 0.05. All other comparisons are exploratory.
 
-- reasoning failures;
-- selection failures;
-- incomplete or malformed generation;
-- coordination / critique failures;
-- evaluator / sandbox failures.
+* **Expected power.** For a typical contrast, ≈ 4–8 discordant task pairs are expected out of 100, giving SE(Δ) ≈ 2–3 pp. The minimum detectable effect at 80% power, α = 0.05 is therefore **≈ 6–8 pp**, larger than every expected effect in §5.1.
+
+* **Predicted inferential outcome:**
+  * P(no contrast significant after Holm) ≈ **0.80**
+  * P(≥ 1 of C1–C6 significantly **better** than C0) ≈ **0.12**
+  * P(≥ 1 of C1–C6 significantly **worse** than C0) ≈ **0.08**
+
+* **Interpretation rule:** a non-significant result is reported as **"no evidence of difference at this sample size"**, never as **"no effect"**. Equivalence is claimed only with a pre-declared margin (default ±3 pp via TOST).
+
+> **Implementation note (known gap).** `evaluation/statistics.py` currently resamples **records** (task × seed × budget; up to 12 per task) rather than tasks, and `scripts/analyze_results.py` applies no multiplicity correction. Left unchanged, this would understate interval widths by roughly a factor of ≈ 3 (≈ √12 under full replicate correlation). Before any real analysis, replace it with a **task-clustered** paired bootstrap and Holm adjustment as specified above.
 
 ---
 
-# 8. Fixed Inference Budgets
+## 7. Threats to validity
 
-EXP-001 defines four budget envelopes:
-
-| Budget | Max calls | Max output tokens | Max wall time | Max estimated cost |
-|:--|--:|--:|--:|--:|
-| **B1** | 4 | 2,048 | 120 s | $1.00 |
-| **B2** | 8 | 4,096 | 240 s | $2.00 |
-| **B3** | 12 | 6,144 | 360 s | $3.00 |
-| **B4** | 16 | 8,192 | 480 s | $4.00 |
-
-Each C0–C6 condition fits within the **B1** condition-level envelope.
-
-Therefore, B2–B4 should **not** be interpreted as automatic evidence of scaling for the registered C0–C6 experiment. Larger budgets provide headroom for future adaptive or extended variants, but a scaling claim requires a protocol that actually allocates additional calls to the experimental conditions.
-
-This distinction prevents unused budget capacity from being mistaken for empirical scaling evidence.
+* **Construct.** HumanEval-derived tasks measure executable Python correctness on short functions, not all forms of reasoning.
+* **Ceiling and contamination.** HumanEval is widely public and likely present in pretraining data of all four models; a high C0 compresses the room for collaboration effects.
+* **Capability confound.** Strategies use different model mixes; part of any gap reflects model identity rather than collaboration. C1 isolates repeated sampling from model diversity but does not fully remove this.
+* **Selection asymmetry.** C1/C2/C6 benefit from execution-based selection that C0/C3/C4/C5 lack. Any C2/C6 advantage is therefore a joint effect of **collaboration + verification** and should not be attributed to collaboration alone. An ablation (C0 or C4 + visible-test selection) is recommended as a follow-up.
+* **Compute asymmetry.** Conditions differ in call count (1–4) and cost (~3× range). "Fixed budget" here is a **cap**, not matched compute.
+* **Determinism.** Seed is best-effort; fingerprints are recorded but exact replay is not guaranteed.
+* **Pricing and model snapshots** reflect 2026-10-02 and may change.
+* **Single provider.** All models are from one vendor, limiting inter-model error independence relative to a truly heterogeneous ensemble.
+* **Sample size.** n = 100 tasks gives wide intervals (§6).
 
 ---
 
-# 9. Model-Call and Token Structure
-
-The frozen generation configuration reserves up to **512 output tokens per model call**.
-
-The registered call structure therefore implies these theoretical maximum output-token counts:
-
-| Condition | Calls | Maximum output tokens |
-|:--|--:|--:|
-| **C0** | 1 | 512 |
-| **C1** | 3 | 1,536 |
-| **C2** | 3 | 1,536 |
-| **C3** | 3 | 1,536 |
-| **C4** | 3 | 1,536 |
-| **C5** | 4 | 2,048 |
-| **C6** | 3 | 1,536 |
-
-These are **upper bounds**, not expected realized usage.
-
-The instrumentation records both:
-
-- reserved budget;
-- actual usage.
-
-Actual cost and latency should therefore be calculated from telemetry rather than inferred only from configured maxima.
-
----
-
-# 10. Projected Efficiency Analysis
-
-Accuracy alone is not sufficient for an inference-time collaboration study.
-
-The final analysis should report measured values for:
-
-`Accuracy`
-
-`Accuracy per Model Call`
-
-`Accuracy per 1K Output Tokens`
-
-`Accuracy per Dollar`
-
-`Accuracy per Second`
-
-The projection does **not** assign numerical values to these efficiency metrics before execution because realized input/output token usage, failures, latency, and selected candidates must be measured.
-
-The intended research question is:
-
-> **How much additional correctness is obtained for each additional unit of inference computation?**
-
----
-
-# 11. Statistical Resolution
-
-The benchmark contains **100 tasks**.
-
-At accuracy near 80%, a single accuracy estimate has a standard error of roughly **4 percentage points** under a simple binomial approximation.
-
-For paired comparisons, the experiment should use the fact that all conditions are evaluated on the same tasks.
-
-A paired analysis such as **McNemar's test** is appropriate for binary task-level outcomes.
-
-The report should include:
-
-- number of tasks correct in each condition;
-- discordant task counts for paired comparisons;
-- effect sizes / percentage-point differences;
-- uncertainty estimates;
-- significance tests where appropriate.
-
-Differences of only a few percentage points should be interpreted cautiously.
-
----
-
-# 12. Largest Sources of Uncertainty
-
-### C6 tie-break behavior
-
-When both A and C pass visible tests, the choice between them can move C6 by several points.
-
-### Visibility in C3–C5
-
-If the implementation gives those conditions additional visible execution information, the projection may undervalue them.
-
-### Strength of C0
-
-If the single-model baseline is unusually strong, the marginal value of diversity can shrink.
-
-### Budget allocation
-
-All registered conditions fit within B1. Higher budgets do not automatically create additional scientific leverage unless call allocation is parameterized by budget.
-
-### Visible-to-hidden test gap
-
-Execution-based selection can only exploit the visible tests to the extent that they correlate with hidden correctness.
-
----
-
-# 13. Diagnostic Patterns for the Real Run
-
-These patterns are **audit signals**, not explanations to assume in advance.
-
-| Observed pattern | First audit target |
-|:--|:--|
-| **C1 exactly equals C0** | Zero effective diversity, sampling configuration, or pipeline bug |
-| **C2 exactly equals C1** | Model routing or model-identity freeze |
-| **All conditions nearly identical or near 100%** | Mock / `validation_only` output |
-| **C4 or C5 far below C0** | 512-token truncation or parsing failures |
-| **Hidden accuracy far below visible accuracy** | Weak visible tests / limited selection signal |
-| **Evaluator failures >5%** | Sandbox or evaluator validity |
-| **C6 well below C1** | A/C tie-break behavior |
-
-The intended response to a surprising result is an **implementation and provenance audit first**, followed by scientific interpretation.
-
----
-
-# 14. Scientific Safeguards
-
-EXP-001 is designed to prevent hidden evaluation information from entering the generation or selection process.
-
-- Benchmark provenance is source-locked to **100 tasks**.
-- Hidden tests are never supplied during generation, critique, refinement, synthesis, ranking, or candidate selection.
-- C1/C2/C6 use **visible objective execution** for candidate selection.
-- C5 uses frozen role-specific prompts and explicit information visibility.
-- Every model call reserves worst-case budget before execution and settles against actual usage.
-- Reserved and actual budget quantities are both recorded.
-- Model failures and evaluator failures are explicitly classified.
-- Mock validation is labeled `validation_only` and cannot become scientific evidence.
-- Real mode fails closed when required credentials, model freeze, benchmark material, Docker, or smoke verification are unavailable.
-
----
-
-# 15. Current Empirical Status
-
-**IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED**
-
-The current repository has:
-
-- a frozen 100-task benchmark;
-- frozen model identities and pricing;
-- frozen prompts;
-- fixed budget envelopes;
-- hidden-test isolation;
-- objective visible-test selection where specified;
-- model / evaluator failure instrumentation;
-- a fail-closed real execution path.
-
-What it does **not** yet have is a real C0–C6 empirical result set for the target research question.
-
-Therefore, this README intentionally does **not** claim:
-
-- that collaboration improves correctness;
-- that C1/C2/C6 actually outperform C0;
-- that C5 is inferior or superior;
-- any empirical accuracy percentage;
-- any empirical cost ranking;
-- any statistical significance result;
-- any overall winning strategy.
-
-The projection above remains a prior until real execution produces provenance-complete task-level results.
-
----
-
-# 16. Reproducibility Boundary
-
-The authoritative experiment specification is frozen in the repository.
-
-Key artifacts include:
-
-```text
-configs/experiments/exp001_fixed_budget.json
-configs/models/models.json
-configs/budgets/
-prompts/
-benchmarks/manifests/exp001_v1.json
-benchmarks/programming/exp001_v1/tasks.jsonl
-```
-
-The real experiment should replace projected values with measured values **without changing the evaluation definitions merely to fit the observations**.
-
-In particular:
-
-```text
-Expected projection
-        ↓
-Real execution
-        ↓
-Raw task-level results
-        ↓
-Audit / validity checks
-        ↓
-Statistical analysis
-        ↓
-Empirical conclusion
-```
-
-This separation is part of the scientific design.
-
----
-
-# 17. Final Expected Summary
-
-| Measure | Pre-execution projection |
-|:--|:--|
-| **Baseline correctness** | **~78%** |
-| **C1 expected center** | **~83%** |
-| **C2 expected center** | **~84%** |
-| **C3 expected center** | **~79%** |
-| **C4 expected center** | **~80%** |
-| **C5 expected center** | **~79%** |
-| **C6 expected center** | **~83%** |
-| **Expected gain of highest projected center** | **~5–6 pp** |
-| **Expected dominant mechanism** | **Objective verification / execution-based selection** |
-| **Expected role of diversity** | **Useful when candidate errors are complementary** |
-| **Expected interaction-only benefit** | **Small / uncertain** |
-| **Projected scaling conclusion** | **Not identifiable from unused B2–B4 capacity alone** |
-| **Empirical result status** | **Not executed** |
-
-### Bottom line
-
-The pre-execution hypothesis is deliberately modest:
-
-> **Objective verification is expected to provide a more reliable source of improvement than collaboration alone, while model diversity may provide additional gains when candidate errors are not highly correlated.**
-
-The real value of EXP-001 is not whether the projection is correct. It is whether the frozen experiment can **test and potentially falsify** that projection under controlled conditions.
-
----
-
-## Validation
+## 8. Execution protocol
 
 ```bash
-make test
-make dry-run
-make audit
+make test        # unit and integration tests
+make dry-run     # validation_only (mock) run; never counts as evidence
+make audit       # intentionally fail-closed until all real gates pass
 ```
 
-`make audit` remains intentionally fail-closed until the real execution gates pass.
-
-## Real execution
-
-After the full gate passes:
+Remaining external gates: **(1)** real Docker sandbox smoke test, **(2)** `OPENAI_API_KEY` in the execution environment.
 
 ```bash
 make preflight
+
 python scripts/run_smoke_test.py
-python scripts/run_experiment.py --config configs/experiments/exp001_fixed_budget.json --mode real
+
+python scripts/run_experiment.py \
+  --config configs/experiments/exp001_fixed_budget.json --mode real
 ```
 
-Real mode has no mock fallback.
+Real mode has **no mock fallback**.
 
 ---
 
-## Paper / Research Status
+## 9. Repository layout
 
-**IMPLEMENTED / SCIENTIFICALLY HARDENED / NOT EXECUTED**
+```
+benchmarks/      frozen manifests, materialized tasks, provenance
+configs/         models, budgets, strategies, experiment definition
+docs/            methodology, model freeze, audit, reproducibility, research report
+experiments/     EXP-001 protocol
+paper/           outline, methods, limitations
+prompts/         versioned, hash-pinned role prompts
+scripts/         preflight, smoke test, runner, scientific audit, analysis
+src/             collaboration engine, budgeting, verification, aggregation, evaluation
+tests/           unit / scientific-control tests
+```
 
-See [docs/research_report.md](docs/research_report.md) for the historical evidence audit and conclusion.
+---
+
+## 10. Research lineage
+
+This repository is a clean reimplementation of ideas from earlier read-only projects (`agentCoder`, `multi-agent-react-sandbox`, `CodeChain`, `Reasoning-Agent`, `efficient-reasoning-research`, and others). None of them provides a valid C0–C6 comparison with a frozen common benchmark and matched budgets, so **no historical result is promoted into P6**. See [`docs/research_lineage.md`](docs/research_lineage.md) and [`docs/research_report.md`](docs/research_report.md).
+
+---
+
+## 11. Reporting rules
+
+1. Expectations in §5 are never edited after the first real execution; observed values are added in new columns, and deviations are discussed explicitly.
+2. Only raw, provenance-complete records from real mode (git SHA, config/prompt/benchmark hashes, Docker digest, seed, trace, objective verdict, failure class) may support empirical claims.
+3. No claim of improvement, ranking, or significance is made without the task-clustered, multiplicity-adjusted analysis in §6.
+4. Null and negative findings are reported with the same prominence as positive ones.
+
+---
+
+**License: see [LICENSE](LICENSE).**
