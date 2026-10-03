@@ -34,6 +34,31 @@ def bootstrap_ci(xs, *, seed=0, n_boot=10000, alpha=0.05, clusters=None):
 def paired_bootstrap_ci(differences, *, seed=0, n_boot=10000, alpha=0.05):
     return bootstrap_ci(differences, seed=seed, n_boot=n_boot, alpha=alpha)
 
+def paired_sign_flip_pvalue(differences, *, seed=2468, n_boot=10000):
+    if not differences:
+        return math.nan
+    observed=abs(mean(differences))
+    if all(value == 0 for value in differences):
+        return 1.0
+    rng=random.Random(seed)
+    extreme=0
+    n=len(differences)
+    for _ in range(n_boot):
+        signed=[value if rng.getrandbits(1) else -value for value in differences]
+        if abs(mean(signed)) >= observed:
+            extreme += 1
+    return (extreme+1)/(n_boot+1)
+
+def holm_bonferroni(pvalues):
+    ordered=sorted(pvalues.items(), key=lambda item: item[1])
+    adjusted={}
+    running=0.0
+    m=len(ordered)
+    for i,(key,pvalue) in enumerate(ordered):
+        running=max(running, min(1.0, pvalue*(m-i)))
+        adjusted[key]=running
+    return adjusted
+
 def paired_differences(records, condition, baseline="C0"):
     by_task=defaultdict(lambda: {"candidate": [], "baseline": []})
     for r in records:
