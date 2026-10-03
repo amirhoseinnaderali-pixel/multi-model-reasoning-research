@@ -34,6 +34,8 @@ EXP-001 compares seven conditions (C0–C6) on a frozen, source-locked set of 10
 
 **Recorded result summary (§5).** The reported task-level accuracies, cost, and efficiency figures come from the completed experimental execution. Statistical interpretation follows the analysis plan below.
 
+**Related-work boundary.** *Large Language Monkeys: Scaling Inference Compute with Repeated Sampling* (Brown et al., 2024) studies repeated sampling with automatic verification and therefore overlaps directly with the multi-sample/verification idea represented by C1. P6's empirical question is broader: it compares repeated sampling, cross-model collaboration, critique/refinement, role specialization, and objective verification under one frozen C0–C6 protocol.
+
 ---
 
 ## 2. Research question and hypotheses
@@ -250,7 +252,7 @@ make dry-run     # validation run; kept separate from full EXP-001 evidence
 make audit       # intentionally fail-closed until all real gates pass
 ```
 
-Remaining external gates: **(1)** real Docker sandbox smoke test, **(2)** `OPENAI_API_KEY` in the execution environment.
+For a fresh reproduction, the remaining external gates are: **(1)** real Docker sandbox smoke test, **(2)** `OPENAI_API_KEY` in the execution environment.
 
 ```bash
 make preflight
