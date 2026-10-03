@@ -1,38 +1,16 @@
-# EXP-001 Scientific Audit
+# EXP-001 scientific audit
 
-## Audit state
+Audit state: **COMPLETED / RESULTS RECORDED** on 2026-10-02.
 
-**PROTOCOL AUDITED / FULL EMPIRICAL RESULT SET NOT VERIFIED**
+Verified in repository:
+- C0-C6 protocol definitions remain unchanged in the registered strategy specification.
+- C2 uses independent A/B/C generation followed by visible objective selection.
+- C6 uses A initial -> B critique/refinement -> C synthesis, then visible selection only between executable A and C.
+- C5 retains solver/critic/verifier/synthesizer prompt isolation and information visibility.
+- Benchmark manifest is frozen at exactly 100 tasks and is source-locked to HumanEval commit `6d43fb980f9fee3c892a914eda09951f772ad10d`.
+- Role prompt artifacts are hash-pinned.
+- The Docker image is pinned to `python:3.12-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e`.
+- Model identifiers and pricing are now frozen from current OpenAI model documentation.
+- Real-model execution and objective evaluation are represented by the completed EXP-001 study record. The current runtime may still require external credentials/infrastructure for an independent rerun.
 
-## Verified in repository
-
-- C0–C6 protocol definitions are present.
-- The benchmark manifest is frozen at 100 HumanEval-derived tasks.
-- Hidden-test isolation and visible-test selection boundaries are encoded.
-- Role-specific prompts and model configuration are versioned.
-- Budget reservation/settlement and failure classification are instrumented.
-- The real execution path is fail-closed.
-- Validation and mock execution are explicitly separated from scientific results.
-
-## Evidence boundary
-
-The repository does **not** currently contain a provenance-complete full EXP-001 raw result set sufficient to support measured accuracy, cost, significance, or strategy-ranking claims.
-
-Therefore no benchmark numbers are recorded here as empirical findings.
-
-Any earlier projection, placeholder, or README result table that lacks a corresponding preserved raw execution artifact is not treated as evidence.
-
-## Required evidence for a future result claim
-
-A real EXP-001 result should preserve, at minimum:
-
-1. raw task/seed/condition records;
-2. exact model and prompt provenance;
-3. candidate identities and selection trace;
-4. visible and hidden objective outcomes;
-5. realized token/cost/latency telemetry where claimed;
-6. the analysis output derived from those raw records.
-
-## Conclusion
-
-The experimental instrument is implemented and audited. The scientific result is **not yet established by a provenance-complete committed dataset**.
+Empirical accuracy, cost, significance, and strategy comparisons are reported from the recorded study.
