@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0,"src")
-from multi_model_reasoning.evaluation.statistics import mean, median, bootstrap_ci, paired_bootstrap_ci, paired_differences
+from multi_model_reasoning.evaluation.statistics import mean, median, bootstrap_ci, holm_bonferroni, paired_bootstrap_ci, paired_differences, paired_sign_flip_pvalue
 
 EVALUABLE={"pass","wrong_answer","timeout","malformed_output"}
 FAILURE_CLASSES={"model_failure","infrastructure_failure"}
@@ -44,6 +44,10 @@ def summarize(records):
             "correctness_per_call":passes/sum(r["model_calls"] for r in rows) if sum(r["model_calls"] for r in rows) else None,
             "correctness_per_token":passes/sum(r["output_tokens"] for r in rows) if sum(r["output_tokens"] for r in rows) else None,
         }
+    pvalues={condition: value.get("paired_sign_flip_p") for condition, value in out.items() if value.get("paired_sign_flip_p") is not None}
+    adjusted=holm_bonferroni(pvalues)
+    for condition in out:
+        out[condition]["holm_adjusted_p"]=adjusted.get(condition)
     return out
 
 def paired_summary(records):
