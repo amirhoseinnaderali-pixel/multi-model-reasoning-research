@@ -20,7 +20,7 @@ def _cluster_means(values, clusters):
         grouped[cluster].append(value)
     return [mean(grouped[key]) for key in sorted(grouped)]
 
-def bootstrap_ci(xs, *, seed=0, n_boot=5000, alpha=0.05, clusters=None):
+def bootstrap_ci(xs, *, seed=0, n_boot=10000, alpha=0.05, clusters=None):
     if clusters is not None:
         xs=_cluster_means(xs, clusters)
     if not xs:
@@ -31,7 +31,7 @@ def bootstrap_ci(xs, *, seed=0, n_boot=5000, alpha=0.05, clusters=None):
     vals.sort()
     return vals[int(alpha/2*len(vals))], vals[int((1-alpha/2)*len(vals))-1]
 
-def paired_bootstrap_ci(differences, *, seed=0, n_boot=5000, alpha=0.05):
+def paired_bootstrap_ci(differences, *, seed=0, n_boot=10000, alpha=0.05):
     return bootstrap_ci(differences, seed=seed, n_boot=n_boot, alpha=alpha)
 
 def paired_differences(records, condition, baseline="C0"):
