@@ -34,7 +34,7 @@ EXP-001 compares seven conditions (C0–C6) on a frozen, source-locked set of 10
 
 **Recorded result summary (§5).** The reported task-level accuracies, cost, and efficiency figures come from the completed experimental execution. Statistical interpretation follows the analysis plan below.
 
-**Related-work boundary.** *Large Language Monkeys: Scaling Inference Compute with Repeated Sampling* (Brown et al., 2024) studies repeated sampling with automatic verification and therefore overlaps directly with the multi-sample/verification idea represented by C1. P6's empirical question is broader: it compares repeated sampling, cross-model collaboration, critique/refinement, role specialization, and objective verification under one frozen C0–C6 protocol.
+**Research-positioning boundary.** P6 overlaps with prior work on repeated sampling, automatic verification, critique/refinement, and multi-agent collaboration, including *Large Language Monkeys: Scaling Inference Compute with Repeated Sampling*. P6 is not the same experiment as `efficient-reasoning-research`: the two repositories use different frozen models, condition definitions, benchmark/configuration provenance, and experimental records. They should be treated as separate studies unless a future protocol explicitly harmonizes them.
 
 ---
 
