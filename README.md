@@ -2,6 +2,8 @@
 
 **Fixed-Budget Multi-Model Collaboration under Objective Execution-Based Evaluation**
 
+**Portfolio role.** A cross-model collaboration study: its C0–C6 semantics are local to this repository and are not a replication of the C0–C6 labels in other portfolio projects.
+
 > **Portfolio status:** `COMPLETED — RECORDED EMPIRICAL STUDY`
 >
 > **EXP-001 status:** `IMPLEMENTED / INTERNALLY AUDITED / EXECUTED / RESULTS RECORDED`
