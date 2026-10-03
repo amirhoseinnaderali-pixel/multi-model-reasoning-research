@@ -44,12 +44,6 @@ def summarize(records):
             "correctness_per_call":passes/sum(r["model_calls"] for r in rows) if sum(r["model_calls"] for r in rows) else None,
             "correctness_per_token":passes/sum(r["output_tokens"] for r in rows) if sum(r["output_tokens"] for r in rows) else None,
         }
-    pvalues={condition: value.get("paired_sign_flip_p") for condition, value in out.items() if value.get("paired_sign_flip_p") is not None}
-    adjusted=holm_bonferroni(pvalues)
-    for condition in out:
-        out[condition]["holm_adjusted_p"]=adjusted.get(condition)
-    return out
-
 def paired_summary(records):
     out={}
     for condition in sorted({r["condition"] for r in records if r["condition"]!="C0"}):
@@ -58,7 +52,13 @@ def paired_summary(records):
             "paired_n":len(diffs),
             "mean_accuracy_difference_vs_C0":mean(diffs),
             "bootstrap_95_ci_difference":paired_bootstrap_ci(diffs) if diffs else (None,None),
+            "paired_sign_flip_p": paired_sign_flip_pvalue(diffs) if diffs else None,
+            "cluster_unit": "task",
         }
+    pvalues={condition: value["paired_sign_flip_p"] for condition, value in out.items() if value["paired_sign_flip_p"] is not None}
+    adjusted=holm_bonferroni(pvalues)
+    for condition in out:
+        out[condition]["holm_adjusted_p"]=adjusted.get(condition)
     return out
 
 def main():
