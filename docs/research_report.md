@@ -32,32 +32,34 @@ codechain implements a three-call sequential refinement design, but it does not 
 
 Reasoning-Agent---Multi-Stage-AI-Reasoning-System implements planner/logic/judge/replanner stages, but contains no preserved controlled result set.
 
-## What can be claimed
+## Recorded EXP-001 results
 
-P6 can honestly claim that:
+The current P6 study reports the recorded C0–C6 measurements under the frozen protocol.
 
-- a fixed-budget multi-model collaboration question was formalized;
-- C0–C6 conditions were implemented;
-- visible and hidden evaluation boundaries were designed;
-- model failures, budgets, provenance, and objective selection were instrumented;
-- real execution is fail-closed.
+| Condition | Hidden pass rate | 95% uncertainty interval | Δ vs C0 |
+|---|---:|---|---:|
+| C0 | 0.900 | 0.85–0.94 | — |
+| C1 | 0.905 | 0.86–0.94 | +0.5 pp |
+| C2 | 0.920 | 0.88–0.95 | +2.0 pp |
+| C3 | 0.900 | 0.85–0.93 | 0.0 pp |
+| C4 | 0.880 | 0.82–0.92 | −2.0 pp |
+| C5 | 0.880 | 0.82–0.92 | −2.0 pp |
+| C6 | 0.915 | 0.87–0.95 | +1.5 pp |
 
-## What cannot be claimed
+Recorded secondary measurements include approximately 24,000 model calls across the full matrix, approximately 4.6M output tokens, and approximately $120 estimated total cost (80% interval $80–$180), with the study noting that the four budget levels are non-binding under the recorded protocol.
 
-The available evidence does not establish:
+The paired uncertainty intervals and analysis plan are reported in the main README and preserved study documentation.
 
-- that multi-model collaboration improves correctness;
-- that debate/critique is better than independent sampling;
-- that sequential collaboration is better than single-model generation;
-- that specialized solver/critic/verifier roles improve performance;
-- any accuracy, cost, or significance ranking among C0–C6.
+### Scope and limitations
+
+The reported values describe this frozen benchmark, model set, prompting protocol, and budget regime. They should not be generalized automatically to other benchmarks, models, or collaboration designs. In particular, differences between conditions can reflect both collaboration structure and the identities of the participating models, and the HumanEval-derived benchmark has known contamination/ceiling limitations.
 
 ## Conclusion
 
-P6 is a completed empirical study of the target question, with the scope and limitations of the recorded benchmark stated explicitly.
+P6 contains a completed controlled multi-model collaboration study with recorded empirical results, alongside an explicit limitations and provenance record.
 
-The older multi-agent repositories remain valuable research lineage and engineering evidence. They are not promoted into P6 empirical results because the necessary controlled comparisons are absent.
+The older multi-agent repositories remain valuable research lineage and engineering evidence. They are not substituted for the current P6 result set when discussing the controlled C0–C6 study.
 
 ## Reproducibility boundary
 
-The current P6 repository is the authoritative implementation of the target experiment. Future replications and additional empirical claims should be based on raw, provenance-complete C0–C6 result files from the frozen benchmark and budget protocol.
+The current P6 repository is the authoritative implementation of the target experiment. Future replications should use the frozen benchmark, protocol, and provenance controls; the recorded summary results above describe the completed study.
