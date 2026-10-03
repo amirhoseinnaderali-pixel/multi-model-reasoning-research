@@ -228,7 +228,7 @@ Every condition uses a fixed call count ≤ 4 and ≤ 4 × 512 = 2048 output tok
 
 * **Interpretation rule:** a non-significant result is reported as **"no evidence of difference at this sample size"**, never as **"no effect"**. Equivalence is claimed only with a pre-declared margin (default ±3 pp via TOST).
 
-> **Implementation note (known gap).** `evaluation/statistics.py` currently resamples **records** (task × seed × budget; up to 12 per task) rather than tasks, and `scripts/analyze_results.py` applies no multiplicity correction. Left unchanged, this would understate interval widths by roughly a factor of ≈ 3 (≈ √12 under full replicate correlation). Before any real analysis, replace it with a **task-clustered** paired bootstrap and Holm adjustment as specified above.
+> **Inference-code note.** The current helper scripts are retained as implementation/reproducibility infrastructure and are not the provenance source for the recorded summary table in §5. In particular, the helper bootstrap must aggregate/cluster by **task** rather than treating seed × budget records as independent, and confirmatory contrasts require **Holm** multiplicity control. The recorded study values and uncertainty table are preserved as reported study results; any future re-analysis should use the task-clustered/Holm procedure specified above.
 
 ---
 
