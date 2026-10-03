@@ -4,7 +4,7 @@
 
 > **Portfolio status:** `COMPLETED — RECORDED EMPIRICAL STUDY`
 >
-> **EXP-001 status:** `IMPLEMENTED / SCIENTIFICALLY HARDENED / EXECUTED / RESULTS RECORDED`
+> **EXP-001 status:** `IMPLEMENTED / INTERNALLY AUDITED / EXECUTED / RESULTS RECORDED`
 >
 > **Results guide.** The numerical results in §5 are recorded experimental measurements from the completed real-model execution. The protocol and provenance records are retained so the results remain auditable.
 
@@ -34,7 +34,9 @@ EXP-001 compares seven conditions (C0–C6) on a frozen, source-locked set of 10
 
 **Recorded result summary (§5).** The reported task-level accuracies, cost, and efficiency figures come from the completed experimental execution. Statistical interpretation follows the analysis plan below.
 
-**Research-positioning boundary.** P6 overlaps with prior work on repeated sampling, automatic verification, critique/refinement, and multi-agent collaboration, including *Large Language Monkeys: Scaling Inference Compute with Repeated Sampling*. P6 is not the same experiment as `efficient-reasoning-research`: the two repositories use different frozen models, condition definitions, benchmark/configuration provenance, and experimental records. They should be treated as separate studies unless a future protocol explicitly harmonizes them.
+**Evidence at a glance.** This repository contains a recorded empirical C0–C6 study. The primary hidden-test point estimates are **0.900, 0.905, 0.920, 0.900, 0.880, 0.880, and 0.915** for C0–C6 respectively. The study summary reports approximately **24,000 model calls**, **4.6M output tokens**, and **$120** estimated full-matrix cost. These are recorded study values, not projections.
+
+**Research-positioning boundary.** P6 is adjacent to prior work on repeated sampling, automatic verification, critique/refinement, and multi-agent collaboration, including [Large Language Monkeys](https://arxiv.org/abs/2407.21787), [Self-Refine](https://arxiv.org/abs/2303.17651), and [test-time compute scaling](https://arxiv.org/abs/2408.03314). P6 does **not** claim novelty for those individual mechanisms. Its project-level contribution is the frozen, common comparison of seven collaboration conditions under one execution-based evaluation protocol. It is also not the same experiment as `efficient-reasoning-research`: the two repositories use different model freezes, condition semantics, and protocol/provenance records. They should not be treated as independent replications.
 
 ---
 
