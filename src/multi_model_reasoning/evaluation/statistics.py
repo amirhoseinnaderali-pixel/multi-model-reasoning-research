@@ -1,5 +1,6 @@
 import math
 import random
+from collections import defaultdict
 
 def mean(xs):
     return sum(xs)/len(xs) if xs else math.nan
@@ -10,7 +11,18 @@ def median(xs):
     ys=sorted(xs); n=len(ys); m=n//2
     return ys[m] if n%2 else (ys[m-1]+ys[m])/2
 
-def bootstrap_ci(xs, *, seed=0, n_boot=5000, alpha=0.05):
+def _cluster_means(values, clusters):
+    values=list(values); clusters=list(clusters)
+    if len(values)!=len(clusters):
+        raise ValueError("values and clusters must have equal length")
+    grouped=defaultdict(list)
+    for value, cluster in zip(values, clusters):
+        grouped[cluster].append(value)
+    return [mean(grouped[key]) for key in sorted(grouped)]
+
+def bootstrap_ci(xs, *, seed=0, n_boot=5000, alpha=0.05, clusters=None):
+    if clusters is not None:
+        xs=_cluster_means(xs, clusters)
     if not xs:
         return (math.nan, math.nan)
     rng=random.Random(seed); n=len(xs); vals=[]
@@ -23,15 +35,15 @@ def paired_bootstrap_ci(differences, *, seed=0, n_boot=5000, alpha=0.05):
     return bootstrap_ci(differences, seed=seed, n_boot=n_boot, alpha=alpha)
 
 def paired_differences(records, condition, baseline="C0"):
-    baseline_by_key={(r["task_id"],r["seed"],r.get("budget_id")):
-                     (1 if r["objective_verdict"]=="pass" else 0)
-                     for r in records if r["condition"]==baseline}
-    out=[]
+    by_task=defaultdict(lambda: {"candidate": [], "baseline": []})
     for r in records:
-        if r["condition"]!=condition:
-            continue
-        key=(r["task_id"],r["seed"],r.get("budget_id"))
-        if key in baseline_by_key:
+        side="baseline" if r["condition"]==baseline else "candidate" if r["condition"]==condition else None
+        if side is not None:
             outcome=1 if r["objective_verdict"]=="pass" else 0
-            out.append(outcome-baseline_by_key[key])
+            by_task[r["task_id"]][side].append(outcome)
+    out=[]
+    for task_id in sorted(by_task):
+        pair=by_task[task_id]
+        if pair["candidate"] and pair["baseline"]:
+            out.append(mean(pair["candidate"])-mean(pair["baseline"]))
     return out
