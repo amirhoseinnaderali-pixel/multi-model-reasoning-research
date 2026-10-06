@@ -1,0 +1,914 @@
+{
+  "benchmark_id": "humaneval-stratified-100-v1",
+  "version": "1.0.0",
+  "task_type": "python_function_generation",
+  "task_count": 100,
+  "provenance": {
+    "canonical_source": "openai/human-eval",
+    "canonical_source_url": "https://github.com/openai/human-eval",
+    "source_commit": "6d43fb980f9fee3c892a914eda09951f772ad10d",
+    "source_path": "data/HumanEval.jsonl.gz",
+    "source_git_blob_sha1": "998d25196e17af24daf9b6cb3a975fe752528e46",
+    "source_archive_sha256": "b796127e635a67f93fb35c04f4cb03cf06f38c8072ee7cee8833d7bee06979ef",
+    "acquisition_mirror": {
+      "repository": "nerdskingcom/gguf-humaneval-benchmark",
+      "branch": "main",
+      "branch_sha": "7e5a3ceb7b8ab4d94714098fad566ef4c487a605",
+      "file": "HumanEval.jsonl",
+      "file_blob_sha1": "cb85a765fe1d0d4db31571b729e4235a9f7b1ee9",
+      "file_sha256": "a2891a8b99a91831af37bd5ed618514acc8dfc43dd2347c6e0fa926f18178794"
+    }
+  },
+  "selection_policy": {
+    "type": "stratified_source_order",
+    "target_category_counts": {
+      "arrays_lists": 26,
+      "strings": 26,
+      "arithmetic": 12,
+      "sorting": 12,
+      "parsing": 6,
+      "dynamic_programming": 4,
+      "general": 3,
+      "recursion": 3,
+      "graph": 3,
+      "hash_maps": 3,
+      "greedy": 1,
+      "searching": 1
+    },
+    "exclude_tasks_with_fewer_than_two_top_level_asserts": true,
+    "within_category_order": "source_file_order",
+    "global_order": "source_file_order",
+    "conditions": {
+      "C1": "visible objective execution only; hidden tests evaluation-only",
+      "C2": "visible objective execution only; hidden tests evaluation-only",
+      "C6": "visible objective execution only between executable A-initial and C-revised candidates; hidden tests evaluation-only"
+    }
+  },
+  "evaluation_split_policy": {
+    "type": "deterministic_assertion_split",
+    "visible_rule": "first ceil(n/2) executable ast.Assert nodes in static source order; nested assertions retain their original control flow",
+    "hidden_rule": "remaining executable ast.Assert nodes in static source order",
+    "minimum_assertions_per_task": 2,
+    "assertion_definition": "all ast.Assert nodes contained in check(candidate), traversed in deterministic source order",
+    "visibility_rule": "generation/selection strategies may access visible feedback only where explicitly configured; hidden assertions never enter strategy context",
+    "no_objective_selection_on_hidden": true,
+    "hidden_test_roles": [
+      "not supplied to candidate generation",
+      "not supplied to critique/refinement",
+      "not supplied to synthesis",
+      "not used for candidate ranking or selection",
+      "reserved for final evaluation"
+    ]
+  },
+  "category_distribution": {
+    "arrays_lists": 26,
+    "parsing": 6,
+    "arithmetic": 12,
+    "strings": 26,
+    "sorting": 12,
+    "dynamic_programming": 4,
+    "general": 3,
+    "recursion": 3,
+    "graph": 3,
+    "hash_maps": 3,
+    "greedy": 1,
+    "searching": 1
+  },
+  "difficulty_policy": "The canonical HumanEval source does not provide a defensible difficulty label. difficulty is therefore unlabeled_source and is not used in analysis or selection.",
+  "tasks": [
+    {
+      "task_id": "HumanEval/0",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "02f7ec4dbf83a8dfb01c003ace21a8fd7110a3538b6b848c0387fb1f934c888d",
+      "test_sha256": "791458a53402434f50698418c76887cf4085c7d1a2453b4da493237c50ef96c5"
+    },
+    {
+      "task_id": "HumanEval/1",
+      "category": "parsing",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "ea506e47b4db5a797813163373c1e2d13fd9da7c61a102c2823f6072da0b1f11",
+      "test_sha256": "eec0f175849e317e04b8e983c48cc25e50da543975e7163939da0fd6b6c14f9c"
+    },
+    {
+      "task_id": "HumanEval/2",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "bdfb7d98457b734444870ca2b82e1223b158c2ad6919ca92a8198bf9160906f8",
+      "test_sha256": "6a39b8fb5ea92472f27a2b8b305abe517547f20a3cd824f4de73fb7e0f4b7934"
+    },
+    {
+      "task_id": "HumanEval/3",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 6,
+      "task_sha256": "e9037d4009248389455015754025008c0e64fed6eaa2185b7853992b81ebb401",
+      "test_sha256": "40b6760bdaa3d5c213303b7021e563f8561c1466d46bfbdf25eee5591a7b9aa8"
+    },
+    {
+      "task_id": "HumanEval/4",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "9126b69c13c476f0c22bc218a6c9a6a626406f6b6253c42ac255bc17e8effb9d",
+      "test_sha256": "5b28de46dfd046bbb72c49a4cfcafbac0eeed6ab45312f5d573e2cd34aa22f1b"
+    },
+    {
+      "task_id": "HumanEval/5",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "62511b6f70f97e2f9f277fc0129ef5ef66bf79a39423997449fe19a600ac6a77",
+      "test_sha256": "09f028312e9703cb8fe5f9a5027ab5ec540e79dd5525a318fa209bff1fcd15cb"
+    },
+    {
+      "task_id": "HumanEval/6",
+      "category": "parsing",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "5a8e72126332f4f5df47c90806d954f8c206d368f9d60e0cb110a35625bca146",
+      "test_sha256": "e7a9b53bdd50882991a3fa59c4f725da48e260f3125a2aa9d520a2358cc011f9"
+    },
+    {
+      "task_id": "HumanEval/7",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "f5dbc14b17a68cf0990c16ecb69b3ced95fc970109cbd100b07042dcbe7fd897",
+      "test_sha256": "151e83d8e61801a06d5b4c6813497111954a8e53235d8c484027bfefd057f751"
+    },
+    {
+      "task_id": "HumanEval/8",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "4ec51a3656c131e77bf2699ad89b231b608d576de396a1a3dd87f66c4b417e8a",
+      "test_sha256": "0910e972b4099735ae4c3035ac238672cc262ac579410a6e7aa8a79382c56e1b"
+    },
+    {
+      "task_id": "HumanEval/9",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "e295d6509e9f7b3bbdb6414ca267c751aff02df0650343a4bd729b3bbd14afbd",
+      "test_sha256": "ea4c0c4da11c45408e42bac13c6983f287ab9e228ee7c4cfb82133355791b610"
+    },
+    {
+      "task_id": "HumanEval/10",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "80e4331322d230bfe589f70015618a9d4d98fdfee2842443c35d60c627633fcf",
+      "test_sha256": "8ed1f1e7d98af11f081c8721fff6c8761721bca17312125ad76e6f2aec77198a"
+    },
+    {
+      "task_id": "HumanEval/11",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "71bdd0da7b6f8ccdaf70c4108c6fd6fe3d1bf1b2f06eb083dd0a00b5c5cc090e",
+      "test_sha256": "9ea2b295d58b76a76f454b3418d5adce7332027a37f52bd497c393dd1413f6ab"
+    },
+    {
+      "task_id": "HumanEval/12",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "487a0d0e74373ab50c912f6f94621073e6981fdbf5d9db3827dc4bf82d99cceb",
+      "test_sha256": "f663d4b7a999dc1823d4ee46497271f6052abf4d4cf972f6ed4af84811a5af4b"
+    },
+    {
+      "task_id": "HumanEval/13",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "2a578e8cbd46d7a0ed3a6754e631fa7bddab138a92d836a805f2db06df48c843",
+      "test_sha256": "425a08ae556a0aa5d0947c14a74c35386c1b6eb46dc2527e8dc090d940d0fc07"
+    },
+    {
+      "task_id": "HumanEval/14",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "25adfe8bc141dcaa74d152196cdb7001c10a1fbe6c4ca44cf6d086fe0afb0393",
+      "test_sha256": "79f83d056e0f6b818bc8103ce4ed597a769d98ada76ee9ddccf856d29a262b8e"
+    },
+    {
+      "task_id": "HumanEval/15",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "9159b1f2a06e92498865196d670404e6a613fcccd70f70a0336af364fd29c581",
+      "test_sha256": "f33fe7ee4ed9965a69a1e266735813dec79485fe1d9dda05d0a88e8450ea465f"
+    },
+    {
+      "task_id": "HumanEval/16",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "852165f20ced8856ccf65ab1faa005ccae22d05305b0db54acef58849b9bd464",
+      "test_sha256": "9d673b494a6278c5d70c5a19ea47535b7635d8aacbf25dcb0a8442c1065a0165"
+    },
+    {
+      "task_id": "HumanEval/17",
+      "category": "parsing",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "ec781aba36b7ac3ea14569ef16bbab547a0a6228a3589fe7e9ed0e16ade52755",
+      "test_sha256": "6576ad3386416662c75a27317f741a8053aadc096fcb3bb91acb1dc527b52a29"
+    },
+    {
+      "task_id": "HumanEval/18",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "f8bead17c56500a56be5bf7e3103f7548bf961b42c82bc0db999383fd1175520",
+      "test_sha256": "43ff59d91c8e0c74b916dfe25a3eb0a988ebaf48444df2dcff806151f73f508e"
+    },
+    {
+      "task_id": "HumanEval/19",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "28c7ee199f0b8cb03cfc48fe9457f9dc4154ecf9373db436f3709b6370aaa8f8",
+      "test_sha256": "02b12e072db771dce79ce0b8fd268527b3e50a733c453e35b08818bd0ad5dcb5"
+    },
+    {
+      "task_id": "HumanEval/20",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "ca3ec31aaaa6a3da2ad302fa47cc9b9bbbceda3e44c88315e48396eb54cabee0",
+      "test_sha256": "2d387b4e1c81940094f73e34fe6ac40f3181a546c3b48adfef58b4ed4eb23968"
+    },
+    {
+      "task_id": "HumanEval/21",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "7448e18fd07dc4e7e788a0627d09be377f26f89f4bdd53d9d5a7a3dbdb0d67da",
+      "test_sha256": "a0a6d23a2e768f306e8f5a1ad4782ff6a322082cf887ea54666d6b474f97bef6"
+    },
+    {
+      "task_id": "HumanEval/22",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "f4e6596b20b66f64bb8c47bd9cf0e379b6c7c71f8bfcef831cea35a4ec961873",
+      "test_sha256": "105b1a927063d5b208d7ab8f7814c95341b9a007ba48a307b44e2f5a33888206"
+    },
+    {
+      "task_id": "HumanEval/23",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "4e7ce3b62002c56454c7d9006528027c37a1f3d40e4b2606efd44f097e536624",
+      "test_sha256": "f181949ea78344b5ea08fd2621c3a1c134e73d5a8c54b59946327d3ca59b89d9"
+    },
+    {
+      "task_id": "HumanEval/24",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "0f788d3a75535305359e514499e8f1a36b6a670199a5b1fc27dd259b143b7629",
+      "test_sha256": "8f15f3fc77d5fe9d4031725ca0604b4f7af55f1db3f563b7cb3b3ff0863ac667"
+    },
+    {
+      "task_id": "HumanEval/25",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "e7a3b80d30014e020cfd3195737f1eff4209ebb8d904f6413176e399e8a7e756",
+      "test_sha256": "c394d4839625eaf625f2419368256bd071e80f9b2082ee13c556c2b6669d77f3"
+    },
+    {
+      "task_id": "HumanEval/26",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "fe0dbea42894abb911eb31d1cf9bdc2eedae0720356b7c78ac4f4002a7788f62",
+      "test_sha256": "d9a75aa0af439c70f86bbc9ae8557567b4a3428b7496984ed86a91efc0eb5287"
+    },
+    {
+      "task_id": "HumanEval/27",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "0733c941b9741cd1ffb3653409ef45f4f3582487e782db506529cb6726655d2f",
+      "test_sha256": "bae65694358203b294c7bd946f86e137b9d51e17f05011dcafe5022903b24b8d"
+    },
+    {
+      "task_id": "HumanEval/28",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "b9d695cd1a90e861237ed0a1c7d9e69e1ee0be79144ea77691daa14a91556287",
+      "test_sha256": "c9c52e750ee61d91b96fe2998f6ee85753e2c50f2ef4172936b7d4156fc86446"
+    },
+    {
+      "task_id": "HumanEval/29",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 2,
+      "task_sha256": "1c49b5a2cb349faa5519c31755601ac775457ac1840cc47d0fa01837332bc1dc",
+      "test_sha256": "9a8b1ce14654166499b901763884822e6ed09c454f249a165f0c13d8027bed53"
+    },
+    {
+      "task_id": "HumanEval/30",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "5c1b340260f596b2a0cb412e337f276c52ca47e4f5acbc6a2ae955f0b18d6179",
+      "test_sha256": "d78a9b6734b14542b371812c9ffd5ae96f45cfef09e50dfbef804ccd23209288"
+    },
+    {
+      "task_id": "HumanEval/31",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 13,
+      "task_sha256": "91203e0c54156e2afd1d5c98782c1dd154f80e83bc8a44d35a568eeb394b68b0",
+      "test_sha256": "0c2710eed0be78725cb7d70611beafefb8563b7f726f8113e3416f3328344e64"
+    },
+    {
+      "task_id": "HumanEval/33",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "83d29fc814a26da3568d12bc4cf7d62e10c03de920168c513e61a5ddeb3fd9ab",
+      "test_sha256": "a3312b9a049a706dd982a490282df9a7aea24defd68a8f74f3538c76e2aaefd3"
+    },
+    {
+      "task_id": "HumanEval/35",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 2,
+      "task_sha256": "c16a6bcc8e305f01697d4293501a829a3a58ed62e31c6c9a16da749d9b239b87",
+      "test_sha256": "7dc5daf7e8fc58657ccee96dc4cc8bb21a4dc4647a56b36477bacb623d4b7d2b"
+    },
+    {
+      "task_id": "HumanEval/36",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "73ca6ae234f6095585dc60c406850b70d8aa2ab929fd0768a5804f0f1904c302",
+      "test_sha256": "33902aa28a76a3d18738481f56efa1dbf4a361328768356c6de78461113bfeee"
+    },
+    {
+      "task_id": "HumanEval/37",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "f8bf789392be464c1fdbe001a1dba5c7b282a3530a664de869ecfed9fb87f5cf",
+      "test_sha256": "250ae244cf3a26e80187ed878666cd89eca2d668bcecd7439e5ab9eb8c821f9b"
+    },
+    {
+      "task_id": "HumanEval/39",
+      "category": "dynamic_programming",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "69f156f7d36df2e9022a9ee692f2a327b119fc8d57a64e72fa03dbde956a41dd",
+      "test_sha256": "c47576f016a2575e8c434bd4d2c7c120c0c6f06ac2b7e2d06125b5cac605ee0b"
+    },
+    {
+      "task_id": "HumanEval/40",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 9,
+      "task_sha256": "cf06b2143b0eacae106559bfc745ce2f8069d033bec0ff83f83960f5694cdd20",
+      "test_sha256": "ab1c582b6e6be39a9882bc9fabb59290643e6af9c4ef3b605d87a33bd27bf6dd"
+    },
+    {
+      "task_id": "HumanEval/41",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "8f496307238f92ec8ba436953c00cda8938dbc562b42f1c719f78df5812dff25",
+      "test_sha256": "efd30b4973f1afead4dabda893cbf189465d7df8d117d5dac1b78d6d06c084ec"
+    },
+    {
+      "task_id": "HumanEval/42",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "30c7f1635100609367b3195a72049277a808912704d2917b32c5463339af6621",
+      "test_sha256": "44c7c3fc1a4e1c708b20efba70e38c8b635c2d71f9d31009a52e69789e9b83ab"
+    },
+    {
+      "task_id": "HumanEval/43",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 9,
+      "task_sha256": "7368c8347769749f6364b53a6ba52ec61560640ed273dbe17e7e1175a054ad72",
+      "test_sha256": "27824ed8f2004af0c66edf293f5db9eb16558b5533574b0f70344b5c3719914c"
+    },
+    {
+      "task_id": "HumanEval/44",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "1726dbec5fd612dd7543033329d91b7fd0814508b34191b9f4b22489501ae533",
+      "test_sha256": "098dc0733ee8b84a8b6355401504277ed445fbbb852f79414371f9556fd5280f"
+    },
+    {
+      "task_id": "HumanEval/45",
+      "category": "general",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 3,
+      "task_sha256": "22495ffa6bb41007e1f7d182f4fa9acfb10014c350c2cfe54c7d68763fe1f4ab",
+      "test_sha256": "24e8272f67a53880ba8102c62c930157c27a0a1124423b4221a0c37c8fefe736"
+    },
+    {
+      "task_id": "HumanEval/46",
+      "category": "recursion",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "056a70ea0e11b86dc2d7e74186e9995be9ef34c15ede7023949c99371304b78d",
+      "test_sha256": "cacc4db82032770f0ba256e829e2da1e9573df5662f24d3691383d8ed9ffc953"
+    },
+    {
+      "task_id": "HumanEval/47",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "68639a3d53f9ddf2d6084c1debac7e0f0919f5e92881fb96a4848c7cdc5ba50f",
+      "test_sha256": "ab1c0c62c581beca5067db2293611b28baf3ce4f01aae214850b88c007a8319a"
+    },
+    {
+      "task_id": "HumanEval/48",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "4797923e3faaee0b898d124b1bdb437bdffa029d1b977139ad22d0d81ad8a488",
+      "test_sha256": "26ad8f22528a485295dfc0a1e6c6fca0299aaa18946cd952fe3eb7ad9f63150f"
+    },
+    {
+      "task_id": "HumanEval/49",
+      "category": "general",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "4b51e7de14d4b0bb628c00f7cb6e34a665ceb725b62788375fb9c96a34093bf5",
+      "test_sha256": "27355fa891557a9021767b11ce44faa534af8acb8e09bb2c7a82d34129a451a3"
+    },
+    {
+      "task_id": "HumanEval/51",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "5cdf58622b5780ad0c720dc7e3e6d0b74741ee53b6d03a3ed7bd1de7086f0aea",
+      "test_sha256": "111a2db1ee8ffecc33db50782428fccd0e154fb6f5f5a2fe37edf48413fba187"
+    },
+    {
+      "task_id": "HumanEval/52",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 6,
+      "task_sha256": "95c5813388c58a064a6a5d23225243d6166158caf9122d8830b85c81da7de660",
+      "test_sha256": "e167a215c787c0c7d925ca497e622566a30d9130d8a74a7b7af227f29d4578d4"
+    },
+    {
+      "task_id": "HumanEval/53",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 6,
+      "task_sha256": "3d5460f2902c94bc6b8a07eaa34942c8f6d2887b25206cf3e767927251840049",
+      "test_sha256": "7558a799bff090587972c45b7e7a5d17fd9f73cc9cbdc62c37bd1edc786f99ee"
+    },
+    {
+      "task_id": "HumanEval/54",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "342bc2266a909fceed4661a8320a35936d3ab4f0480d18e86592488b294c4e0c",
+      "test_sha256": "ecc199392d4265885c74bbc652634ba81b68084eeb0ef0cf3a810e3816f083c5"
+    },
+    {
+      "task_id": "HumanEval/55",
+      "category": "dynamic_programming",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "e7793ea3c3d68aaacd39583b94c5db60cbea998c7ee2cbf9b2bfd469710dc315",
+      "test_sha256": "50ff9845f028f60dc79e30bcd0fc49c1973b907168be46ba5e3e4ea6f5ac9c3b"
+    },
+    {
+      "task_id": "HumanEval/56",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 12,
+      "task_sha256": "c4d0fc6e54b9ba689ff9503190c71d1c0a3ce1860016a2c1229e32018a4f9f7e",
+      "test_sha256": "63f4c7c44579194563e5bb31fa1c56e32ead34317c8255c82c5c1ea8ed7e5ca7"
+    },
+    {
+      "task_id": "HumanEval/57",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "d275ee066c4af4952031a4545647dfa6782ac92cdc5c7003c6a0f93f75817e0c",
+      "test_sha256": "bf657f12f0c19f1746226e36d3fbdb7bc937b36eca525f2d4bdfb4b12e5333a5"
+    },
+    {
+      "task_id": "HumanEval/58",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "a191255933878b3300fd182c6a0f21b9fabc2bf61f9ed273aeb4cc568f95e300",
+      "test_sha256": "514fd6bb70364dbef9b1f648cb23ee0b0dc97497c522ec7142e651bda994331a"
+    },
+    {
+      "task_id": "HumanEval/59",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "2c45ba320e64e72ebdf16d19bd86f9ff00409c2ac8f27eff24146cac5d4f0dc4",
+      "test_sha256": "3be68a49de2a44e8164f7c02a2cc07d2e3f65008f15e7cb864e73c1f1121e4fb"
+    },
+    {
+      "task_id": "HumanEval/60",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "cd24ccf687766412588ff7510a6809aa37d18fa5513ebaf4972019ccac453907",
+      "test_sha256": "44f1a98fe56b92c518dff056b50da027fef06c01816f88b5f1b3fa22633693c0"
+    },
+    {
+      "task_id": "HumanEval/61",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 12,
+      "task_sha256": "7e5443641352de305c5bc595db65e7d10ed1020474ccdb66b9953d917ffc0bf6",
+      "test_sha256": "3d0bcc3602ccf26ba196dcc802b5154d15cdaf2eba88012bdbfb14223efe98aa"
+    },
+    {
+      "task_id": "HumanEval/62",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "8577ad31e3f8d9883d8b07d670104336e5ba7c97d0fdf75277e9b51c79c1d2b6",
+      "test_sha256": "3e771e591f19ad078c85a9229f29b67452e79854d3d7652a484d0927dbdcffa0"
+    },
+    {
+      "task_id": "HumanEval/63",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "80f9860d4da2712cddeb3697fd8fece31a112d5795356106cfc21e48e6e288f5",
+      "test_sha256": "8d118dd896b9a625c077d75746c77c9cb31a8acf9607674ff9d53198a108bb43"
+    },
+    {
+      "task_id": "HumanEval/64",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "a8edaa86b269da124501073247d4f671efe197ff25e59c5ebb469730f1a95ad6",
+      "test_sha256": "83722a57d8fca93dceb41ac2f4b1711c0edbd98aa0d12a691e2a5f5bcc97c3dd"
+    },
+    {
+      "task_id": "HumanEval/65",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "e78b842aec51e6b02087594fc3b64cfe18536a4f4e68b707e5d08819f487841f",
+      "test_sha256": "d0460dee7bb959cd4661c1384aba128b584d74f259c4fff15caec4443c486313"
+    },
+    {
+      "task_id": "HumanEval/66",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "8dcf72d89bd321a98706cb0453c045a689d711ddb01dc2d8a7dfe6073cc41f36",
+      "test_sha256": "b4070be2953c9340eed279afea505fc164fcb3d050889fc9d712e8caa60ac39c"
+    },
+    {
+      "task_id": "HumanEval/67",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "9afac63303c2a0b690bec2b71d8ed79d966a616ea1d5f12302f94bc17f57dc0e",
+      "test_sha256": "04ced2bd817a4aea78839b95262f884e255be7282aca4fa9caa66dae81f4f193"
+    },
+    {
+      "task_id": "HumanEval/68",
+      "category": "graph",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "2d558ef21cc649ed02e61b7759f63d1323aa5b30b2dbd9c063b3b15768445659",
+      "test_sha256": "9b838fce3ee1d263bb2f5a88eab37cbbc9bdd991d601a2f470821a5c52c91202"
+    },
+    {
+      "task_id": "HumanEval/69",
+      "category": "hash_maps",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 25,
+      "task_sha256": "e04388985654540f733a9dd151153a619647f064b0bac4e6dad68b5bf877f16f",
+      "test_sha256": "b6c0b227418494a289378b73035980d6102995b82dbd1a268f2135f9fcb94ea1"
+    },
+    {
+      "task_id": "HumanEval/70",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "c8dbe7d0d19c2af363711e8cf4a0db3270f5fbdc320128c76bb9a17350e34033",
+      "test_sha256": "f89abf7c00ad0f536225ec92d3c9acb25129caf616906e6358c80bc0b12b4c80"
+    },
+    {
+      "task_id": "HumanEval/71",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 9,
+      "task_sha256": "43e39cbd7ef362ddaff56d7ecde8340e7dbdd4b12710f45cbd54adda8111ae11",
+      "test_sha256": "05b33c941e48da9d270340ea9eb7ab06b8a653dbce5cc8964afb8548a9975239"
+    },
+    {
+      "task_id": "HumanEval/72",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 6,
+      "task_sha256": "9e6437899fbe6fe5b20fe14f641f4085298ce6b0f31d80d5e38e570d6e4dee34",
+      "test_sha256": "f16721402a1037725d9d635d77d5e2f0c18b8ef749d22122cc6e684fa6f1b03b"
+    },
+    {
+      "task_id": "HumanEval/73",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "73f76c4d9f7f84c419062301cbcb1c6935083b00698141da959e955d4bb6d5b4",
+      "test_sha256": "b7f909dfabcddae967c52f56fe9b587d66e5ad53bead6cd38b9874a8f2c4f6e0"
+    },
+    {
+      "task_id": "HumanEval/74",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 11,
+      "task_sha256": "2534fcdddb9f4abeaedfec7d3734ce85bb5d11aa46fd601c01f5a5537559e555",
+      "test_sha256": "ede7e638e18ef85a04d59cd9aa08a305ea219aa8ca6a8f28ac51f3d4777e7354"
+    },
+    {
+      "task_id": "HumanEval/75",
+      "category": "arrays_lists",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "daea48006cb0accfefc5e04597071b0132cc8b9daf3824c55ecbdb5eeb3773ac",
+      "test_sha256": "8a071b42e9a9950bed4840c776ec9bedd9a9e99efca26c3c32dd7beb972d8aa5"
+    },
+    {
+      "task_id": "HumanEval/76",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "f48686a52550a075fa1e00e37e7534a836b7eb0fa739be229dfa6e1015f800c5",
+      "test_sha256": "53c46df7af3aa4651aeb0887a3ffc7b662f962130b6d63c3d4be47fe14029541"
+    },
+    {
+      "task_id": "HumanEval/77",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "d999c3f75082dc50aaceab49563f18494b881a1d6ea29771e352dd6407cad37c",
+      "test_sha256": "564cce2b7cb12948c89a5af11eace63285df6ecb7674e92fc8a4687608659e56"
+    },
+    {
+      "task_id": "HumanEval/78",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "f75f92b4ab4ccc70a0ca1a3063eef873200dbfb29496140443157b048466c876",
+      "test_sha256": "caa97d3e6c0aa491e2e1e43eba7a19ad5ad99510675781a21449b2071df9fb00"
+    },
+    {
+      "task_id": "HumanEval/79",
+      "category": "parsing",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "29cb3faafd6a2906ec833f7231674a93a50c0bff8b288be3e1c43d3f82c6e276",
+      "test_sha256": "8ecd4106617d428266a2a5d19cb226e3f9248f26465865de9543d4f4986550d7"
+    },
+    {
+      "task_id": "HumanEval/80",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "0614efa9a08135729027b9c22e0a7bff5fd5826e5f68dbef053cecab636cadd8",
+      "test_sha256": "34e4875039a3de487e4e9908a81de8c5ca56aa1ea81d885efd2fafd54cb4d033"
+    },
+    {
+      "task_id": "HumanEval/81",
+      "category": "strings",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "b0f24e5853e231e95dcd656e01f3c1d4b3e82623dde4725a39dd6a80e713b528",
+      "test_sha256": "cbed46920d6d1d17148ed7dbda008b67083d3d30b1d13ca470ad1f301ccc79b4"
+    },
+    {
+      "task_id": "HumanEval/87",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "9646d1a3596d41f69032bd04f6f391d77ef4a69b934c0e5bbc002d1bc41b56f2",
+      "test_sha256": "93a21dde126dc479c475c4c123d9603c49c96bc8d2d06813454ec60e31e06346"
+    },
+    {
+      "task_id": "HumanEval/88",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 9,
+      "task_sha256": "7ccff489217ed79d609d95588120360137f15a672f41d470157d04532d3e1e56",
+      "test_sha256": "93f1fd720c6d153bbcab3aab67d4b10f4bd62bd3deb88f1fe09e54f74df3f1a5"
+    },
+    {
+      "task_id": "HumanEval/95",
+      "category": "hash_maps",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "314871c8dfe072fce165dee8be48fbff1a524d2c0baaeaa2589af678645bf213",
+      "test_sha256": "6a31e8aa83fd37d0861325cbda8f1ecfed005b156e2fd7129e0b34dd04a41300"
+    },
+    {
+      "task_id": "HumanEval/97",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "c65c8dc3c09a0789852f8575fc53a3e620f4e9e8f3e60c59818622a82dca97dd",
+      "test_sha256": "b4748923ffc961278f8cd8c281049de0171d7044baf13111d67943d49b89be18"
+    },
+    {
+      "task_id": "HumanEval/103",
+      "category": "arithmetic",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 12,
+      "task_sha256": "d432eba9ac276c14b7d0de2c08c2e5f3f7dce87b67412c2d800027bb5f43ce41",
+      "test_sha256": "ed8794511bd6318e05426f788deda86e9043e9f360f130f9d1d18403a7511dbc"
+    },
+    {
+      "task_id": "HumanEval/104",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "307b49c7fe10a56a3abbb314a6f499608741789d8344e982d179dc282b6d32a7",
+      "test_sha256": "640455945d9401cc40e75907a2a02ed892ca9e06b28d78c4674217f9f05c5927"
+    },
+    {
+      "task_id": "HumanEval/105",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 7,
+      "task_sha256": "11de0e5543ef4cd09ffa74a6de8a239fb0f4249790808bede808e2f7c485e296",
+      "test_sha256": "1e8744745f4128305ea87913180192eb93dfe84ea6db3a78940fbd2559f1fb83"
+    },
+    {
+      "task_id": "HumanEval/106",
+      "category": "recursion",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "6957f56688554846d962af4a4a61e87749fc8d5262c0d814d0d832d634ba4ba1",
+      "test_sha256": "58ca953720bb30e3484d0aa5dfbc0eb36252bdfe7c946203cb1201f91178105b"
+    },
+    {
+      "task_id": "HumanEval/109",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 5,
+      "task_sha256": "b5f9c459e912bf4500be5eb218b7883d48bfa9cdb8ee58114b11e5a86982f795",
+      "test_sha256": "1165bcb1af1c4e826ec7b1b9178304970b5f776809100bc7c0c653339caaf9fc"
+    },
+    {
+      "task_id": "HumanEval/111",
+      "category": "hash_maps",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "7f9846f471d365958c40c292ba585396219d8e2e0985b196b67ee2707da238da",
+      "test_sha256": "7b49ee9a305ab627d3eb22470a721a61fbf0ee07e3f7f6469c387ff80d3eba35"
+    },
+    {
+      "task_id": "HumanEval/116",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "eeb5e32abdd0c426bae760562127848b69f3b2749982b05847b1ae751b77bae7",
+      "test_sha256": "91dd1025178ddcd19a9fbf8389f77205cfc91279bd7f97456cdfc058d71aa42c"
+    },
+    {
+      "task_id": "HumanEval/119",
+      "category": "parsing",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 12,
+      "task_sha256": "b145e5a6e03fbec36e8102ab06a60f872be74eb68340f8f29f7ce3657b7e49e2",
+      "test_sha256": "ebfff0666c1afaec8dc435fef9785d604f9de082e1a6cfdbfd917feb514b9b00"
+    },
+    {
+      "task_id": "HumanEval/120",
+      "category": "sorting",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 11,
+      "task_sha256": "d23fdadf40ff379c836d7248099d65d13b03c6bc204b99e2e548aca03e93537b",
+      "test_sha256": "aa57a4eb8443457f7c28ac51bf4bc65e8f78807e216fe123299265e2b0d774bb"
+    },
+    {
+      "task_id": "HumanEval/124",
+      "category": "parsing",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 16,
+      "task_sha256": "f04acd941b5423e13e217d2d6020cb2fe32a643da569aadd95de62f0634d9289",
+      "test_sha256": "ff9afad746277abef0ed591648d05a19880007bcf5275ed9b26c23971dba965a"
+    },
+    {
+      "task_id": "HumanEval/127",
+      "category": "greedy",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 8,
+      "task_sha256": "e50a4adc81e7653701580123c784cde091b9d62e6ef5aca527d5f7f9a88cfcf0",
+      "test_sha256": "0b1f26ab992ed059ff047a9d1f96791d04a2bac74e4e6ad3b4d4609b7466f7c2"
+    },
+    {
+      "task_id": "HumanEval/129",
+      "category": "graph",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 11,
+      "task_sha256": "fc1af3958a4eb2a481af67126815e570486bf1f0d2130ae548611fdeb011071b",
+      "test_sha256": "3c8bf0f86a3b83c385f57d7d5fae447ee7fe37eec39dcb61bbf3bfdda06e9299"
+    },
+    {
+      "task_id": "HumanEval/130",
+      "category": "dynamic_programming",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "5c4f0e0959455f37f78a091334b401f78b366ed501fdc02b62716a686a4d0677",
+      "test_sha256": "9361a1eb6c37b3027ce93a07c16487ed84ee2c80eb7ffcee7f9c4a5b21d1b92a"
+    },
+    {
+      "task_id": "HumanEval/132",
+      "category": "dynamic_programming",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 14,
+      "task_sha256": "be2a6844b837425a643f1c5a824d9288320ad85fe148e981364929d30a0c09e4",
+      "test_sha256": "1c37bdaf21efd227e08840b37ce6d741eb8ebc5275e50c97fa4ba66c05139743"
+    },
+    {
+      "task_id": "HumanEval/139",
+      "category": "recursion",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 4,
+      "task_sha256": "b58f3c553123c2ce0bcfbe676d6a417418ab6337a38c31c0771d23a86c50154c",
+      "test_sha256": "62bc9d1047eb5858d8845c70d2b1a83e333ff27d956113a27880f004742861fb"
+    },
+    {
+      "task_id": "HumanEval/153",
+      "category": "searching",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 9,
+      "task_sha256": "80cca33f015d48224e11fded3852aaeb72d5cf38729d87c7aeb711df71561d79",
+      "test_sha256": "c2f5de211ee519ac7a4e4940c309555a656d664d860ce71b50f9262c2b154c93"
+    },
+    {
+      "task_id": "HumanEval/157",
+      "category": "general",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 11,
+      "task_sha256": "fb9f92b7960030571a7fdf8e3dc54590bc3c56c36d0f6182dfad1cbf9dcd2f8b",
+      "test_sha256": "67272f704387d5c137ad9e44ea4eeb354f1b173c06bd6c3065135932814fb889"
+    },
+    {
+      "task_id": "HumanEval/158",
+      "category": "graph",
+      "difficulty": "unlabeled_source",
+      "assertion_count": 10,
+      "task_sha256": "900777ca4784c99bfde843449ec97d24cb20451b3c0ea417f9e3b19ca6228f05",
+      "test_sha256": "9d23b1f5a8fcc2621fd7c857862fe1c012b87477f57aff3708dd56fef336754d"
+    }
+  ],
+  "integrity": {
+    "hash_algorithm": "sha256",
+    "manifest_content_sha256": "e9e5079854577ee3035c787bc55804880894df39d571587a58bb2e2c9174f149"
+  },
+  "status": "frozen",
+  "materialization": {
+    "artifact_path": "benchmarks/programming/exp001_v1/tasks.jsonl",
+    "schema": {
+      "required_fields": [
+        "task_id",
+        "task_sha256",
+        "test_sha256",
+        "prompt",
+        "entry_point",
+        "visible_tests",
+        "hidden_tests"
+      ],
+      "hashes_are_source_locked": true
+    },
+    "deterministic_order": "manifest task order",
+    "materializer": "scripts/materialize_exp001_benchmark.py"
+  },
+  "hash_verification": {
+    "algorithm": "sha256",
+    "task_hash_payload": [
+      "task_id",
+      "prompt",
+      "entry_point"
+    ],
+    "test_hash_payload": "raw source test string",
+    "recomputed_from_exact_pinned_source": true,
+    "source_task_count": 164,
+    "changed_task_count": 0
+  }
+}

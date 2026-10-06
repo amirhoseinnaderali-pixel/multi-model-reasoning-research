@@ -1,0 +1,154 @@
+{
+  "freeze_policy": {
+    "provider": "openai",
+    "api_endpoint": "https://api.openai.com/v1",
+    "endpoint": "chat.completions",
+    "selection_date": "2026-10-02",
+    "rule": "Freeze four currently available, non-deprecated Chat Completions model identifiers with published pricing. Prefer dated snapshots when OpenAI exposes them. Do not use latest-style aliases.",
+    "generation_parameters": {
+      "temperature": 0,
+      "top_p": 1,
+      "reasoning_effort": "none",
+      "service_tier": "default",
+      "max_tokens": 512,
+      "max_input_tokens": 8192,
+      "seed": 42,
+      "note": "temperature/top_p remain frozen at 0/1; reasoning_effort is none because OpenAI requires reasoning_effort=none when temperature/top_p are specified for these reasoning models."
+    },
+    "seed_behavior": "Seed is fixed per scientific run and increments only for C1 independent same-model samples. OpenAI documents seed as best-effort; system_fingerprint is recorded when exposed."
+  },
+  "role_mapping": {
+    "A": {
+      "registered_semantic_role": "primary_solver",
+      "conditions": [
+        "C0",
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "model_id": "gpt-5.5-2026-04-23",
+      "model_version": "gpt-5.5-2026-04-23"
+    },
+    "B": {
+      "registered_semantic_role": "secondary_solver_or_critic",
+      "conditions": [
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "model_id": "gpt-5.4-2026-03-05",
+      "model_version": "gpt-5.4-2026-03-05"
+    },
+    "C": {
+      "registered_semantic_role": "tertiary_solver_or_verifier_or_synthesizer",
+      "conditions": [
+        "C2",
+        "C4",
+        "C5",
+        "C6"
+      ],
+      "model_id": "gpt-5.4-mini-2026-03-17",
+      "model_version": "gpt-5.4-mini-2026-03-17"
+    },
+    "D": {
+      "registered_semantic_role": "synthesizer",
+      "conditions": [
+        "C5"
+      ],
+      "model_id": "gpt-5.2-2025-12-11",
+      "model_version": "gpt-5.2-2025-12-11"
+    }
+  },
+  "models": {
+    "A": {
+      "provider": "openai",
+      "model_id": "gpt-5.5-2026-04-23",
+      "model_version": "gpt-5.5-2026-04-23",
+      "api_endpoint": "https://api.openai.com/v1",
+      "endpoint": "chat.completions",
+      "temperature": 0,
+      "top_p": 1,
+      "reasoning_effort": "none",
+      "service_tier": "default",
+      "max_tokens": 512,
+      "max_input_tokens": 8192,
+      "seed": 42,
+      "system_prompt_version": "solver-v1",
+      "usd_per_1k_input_tokens": 0.005,
+      "usd_per_1k_output_tokens": 0.03,
+      "pricing_currency": "USD",
+      "pricing_unit": "usd_per_1k_tokens",
+      "pricing_source": "https://developers.openai.com/api/docs/models/gpt-5.5",
+      "pricing_effective_date": "2026-10-02"
+    },
+    "B": {
+      "provider": "openai",
+      "model_id": "gpt-5.4-2026-03-05",
+      "model_version": "gpt-5.4-2026-03-05",
+      "api_endpoint": "https://api.openai.com/v1",
+      "endpoint": "chat.completions",
+      "temperature": 0,
+      "top_p": 1,
+      "reasoning_effort": "none",
+      "service_tier": "default",
+      "max_tokens": 512,
+      "max_input_tokens": 8192,
+      "seed": 42,
+      "system_prompt_version": "solver-v1",
+      "usd_per_1k_input_tokens": 0.0025,
+      "usd_per_1k_output_tokens": 0.015,
+      "pricing_currency": "USD",
+      "pricing_unit": "usd_per_1k_tokens",
+      "pricing_source": "https://developers.openai.com/api/docs/models/gpt-5.4",
+      "pricing_effective_date": "2026-10-02"
+    },
+    "C": {
+      "provider": "openai",
+      "model_id": "gpt-5.4-mini-2026-03-17",
+      "model_version": "gpt-5.4-mini-2026-03-17",
+      "api_endpoint": "https://api.openai.com/v1",
+      "endpoint": "chat.completions",
+      "temperature": 0,
+      "top_p": 1,
+      "reasoning_effort": "none",
+      "service_tier": "default",
+      "max_tokens": 512,
+      "max_input_tokens": 8192,
+      "seed": 42,
+      "system_prompt_version": "solver-v1",
+      "usd_per_1k_input_tokens": 0.00075,
+      "usd_per_1k_output_tokens": 0.0045,
+      "pricing_currency": "USD",
+      "pricing_unit": "usd_per_1k_tokens",
+      "pricing_source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+      "pricing_effective_date": "2026-10-02"
+    },
+    "D": {
+      "provider": "openai",
+      "model_id": "gpt-5.2-2025-12-11",
+      "model_version": "gpt-5.2-2025-12-11",
+      "api_endpoint": "https://api.openai.com/v1",
+      "endpoint": "chat.completions",
+      "temperature": 0,
+      "top_p": 1,
+      "reasoning_effort": "none",
+      "service_tier": "default",
+      "max_tokens": 512,
+      "max_input_tokens": 8192,
+      "seed": 42,
+      "system_prompt_version": "solver-v1",
+      "usd_per_1k_input_tokens": 0.00175,
+      "usd_per_1k_output_tokens": 0.014,
+      "pricing_currency": "USD",
+      "pricing_unit": "usd_per_1k_tokens",
+      "pricing_source": "https://developers.openai.com/api/docs/models/gpt-5.2",
+      "pricing_effective_date": "2026-10-02"
+    }
+  },
+  "status": "models_and_pricing_frozen"
+}

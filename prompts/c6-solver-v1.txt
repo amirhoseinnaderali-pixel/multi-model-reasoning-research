@@ -1,0 +1,6 @@
+VERSION: c6-solver-v1
+PURPOSE: Initial solver role for C6 sequential collaborative refinement.
+
+Solve the original programming problem and return an initial candidate solution.
+Use only the original problem statement and supplied non-hidden context.
+Do not use, infer, or request hidden tests or hidden-test outcomes.

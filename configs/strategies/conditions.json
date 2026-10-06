@@ -1,0 +1,9 @@
+{
+  "C0":"Single Model Baseline",
+  "C1":"Independent Multi-Sample",
+  "C2":"Independent Multi-Model",
+  "C3":"Debate / Critique",
+  "C4":"Sequential Collaborative Refinement",
+  "C5":"Role-Specialized Collaboration",
+  "C6":"Collaborative Reasoning + Objective Verification"
+}

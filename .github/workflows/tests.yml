@@ -1,0 +1,45 @@
+name: tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[test]"
+      - name: Materialize and validate frozen benchmark
+        run: |
+          python scripts/materialize_exp001_benchmark.py --manifest benchmarks/manifests/exp001_v1.json --output benchmarks/programming/exp001_v1/tasks.jsonl
+          python scripts/validate_benchmark.py
+      - name: Required validation targets
+        run: |
+          make test
+          make dry-run
+          set +e
+          make audit
+          status=$?
+          if [ "$status" -ne 2 ]; then
+            echo "Audit must fail closed with exit code 2 until real smoke credentials and execution gates are satisfied."
+            exit 1
+          fi
+      - name: Fail-closed preflight
+        run: |
+          set +e
+          python scripts/preflight.py --config configs/experiments/exp001_fixed_budget.json
+          status=$?
+          if [ "$status" -ne 2 ]; then
+            echo "Preflight must fail closed until real execution gates are satisfied."
+            exit 1
+          fi
+      - run: python -m pytest
+      - run: python scripts/run_experiment.py --config configs/experiments/exp001_fixed_budget.json --mode validation_only
